@@ -1,0 +1,38 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "api",
+            "program": "${workspaceFolder}/app.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "referrer-task",
+            "program": "${workspaceFolder}/task/referrer-task.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "royalty-task",
+            "program": "${workspaceFolder}/task/royalty-task.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "import-script",
+            "program": "${workspaceFolder}/script/import-member.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "post-import",
+            "program": "${workspaceFolder}/script/post-import.js"
+        },
+    ]
+}
