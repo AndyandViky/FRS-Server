@@ -42,11 +42,41 @@ module.exports = {
         ['modeId', Type.Number, true],
     ],
 
+    addBug: [
+        ['title', Type.String, true],
+        ['content', Type.String, true],
+        ['content', Type.String, true],
+        ['path', Type.String, false],
+    ],
+
+    getArticles: [
+        ['pageNo', Type.Number, true],
+        ['pageSize', Type.Number, true],
+        ['status', Type.Number, false],
+    ],
+
+    getArticle: [
+        ['articleId', Type.Number, true],
+    ],
+
     getVisitors: [
         ['pageNo', Type.Number, true],
         ['pageSize', Type.Number, true],
         ['status', Type.Number, false],
         ['userId', Type.Number, false],
+    ],
+
+    residentVerify: [
+        ['phone', Type.Phone, true],
+        ['card_id', Type.IdCardNO, true],
+        ['identity_pic', Type.String, true],
+        ['card_front', Type.String, true],
+        ['card_opposite', Type.String, true],
+    ],
+
+    approveVisitor: [
+        ['visitorId', Type.Number, true],
+        ['deadline', Type.Number, true],
     ],
 
     getNoticeList: [
@@ -62,6 +92,24 @@ module.exports = {
 
     removeNotice: [
         ['noticeId', Type.Number, true],
+    ],
+
+    // 管理员
+    approveResident: [
+        ['userId', Type.Number, true],
+    ],
+
+    operatedBug: [
+        ['bugId', Type.Number, true],
+        ['result', Type.String, true],
+    ],
+
+    addArticle: [
+        ['title', Type.String, true],
+        ['content', Type.String, true],
+        ['status', Type.Number, true],
+        ['tag', Type.String, true],
+        ['category', Type.String, true],
     ],
 
     /**

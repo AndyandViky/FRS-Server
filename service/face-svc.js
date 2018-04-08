@@ -14,6 +14,12 @@ module.exports = {
         return result
     },
 
+    async updateSecondModel(data) {
+        const url = `${config.BE_DOMAIN}/secondModel`
+        const result = await faceRequest.put(url, data)
+        return result
+    },
+
     async getCamera() {
         const url = `${config.BE_DOMAIN}/cameras`
         const result = await faceRequest.get(url)

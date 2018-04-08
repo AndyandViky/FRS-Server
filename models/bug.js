@@ -25,6 +25,10 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.TEXT,
             allowNull: false,
         },
+        path: {
+            type: DataTypes.STRING(255),
+            allowNull: true,
+        },
         result: {
             type: DataTypes.TEXT,
             allowNull: true,

@@ -4,6 +4,8 @@ const {
     test,
     notice,
     user,
+    attachment,
+    admin,
 } = require('./ctrl')
 
 const router = express.Router()
@@ -16,8 +18,24 @@ register('post', '/register', user.register)
 register('get', '/user', user.getUserInfo)
 register('get', '/face', user.getUserFaceModel)
 register('post', '/face', user.addFaceModel)
-register('get', '/user/activate', user.actived)
+register('put', '/user/active', user.actived)
 register('put', '/face/active', user.activeModel)
+register('post', '/bug', user.addBug)
+/**
+ * 业主
+ */
+register('get', '/visitors', user.getVisitors)
+register('put', '/visitors', user.approveVisitor)
+register('get', '/articles', user.getArticles)
+register('get', '/article', user.getArticle)
+
+/**
+ * 管理员相关
+ */
+// 通过业主申请
+register('put', '/resident', admin.approveResident)
+register('put', '/bug', admin.operatedBug)
+register('post', '/article', admin.addArticle)
 
 /**
  * 通知相关
@@ -28,6 +46,13 @@ register('get', '/notices', notice.getNoticeList)
 register('put', '/notice', notice.updateStatus)
 // 删除通知
 register('delete', '/notice', notice.removeNotice)
+
+/**
+ * 附件上传
+ */
+// 图片上传
+register('post', '/image', attachment.uploadImage)
+register('post', '/file', attachment.uploadFile)
 
 /**
  * 测试接口

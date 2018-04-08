@@ -32,5 +32,7 @@ module.exports = {
     UploadPath: {
         Face: { value: 'static/images/face', text: '人脸图片上传' },
         Avatar: { value: 'static/images/avatar', text: '头像上传' },
+        Bug: { value: 'static/images/bug', text: '故障图片上传' },
+        Auth: { value: 'static/images/auth', text: '身份认证图片上传' },
     },
 }

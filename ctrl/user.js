@@ -1,4 +1,15 @@
-const { peoples, users, visitor, enums, faceData, attachment, visitorRecord } = require('../models')
+const {
+    peoples,
+    users,
+    visitor,
+    enums,
+    faceData,
+    attachment,
+    visitorRecord,
+    bug,
+    notice,
+    article,
+} = require('../models')
 const { common } = require('../util')
 const multiparty = require('multiparty')
 const sequelize = require('sequelize')
@@ -104,7 +115,6 @@ module.exports = {
         const form = new multiparty.Form()
         form.uploadDir = UploadPath.Face.value
         form.parse(req, (err, fields, files) => {
-            // 获取提交的数据以及图片上传成功返回的图片信息
             const imageMagick = gm.subClass({ imageMagick: true })
             const paths = files.file[0].path
             imageMagick(paths).resize(640, 480, '!').autoOrient().write(paths, async (err, result) => {
@@ -168,4 +178,98 @@ module.exports = {
         data.total = await visitorRecord.count({ where: query })
         res.success(data)
     },
+
+    /**
+     * 业主通过访客访问
+     */
+    async approveVisitor(req, res) {
+        const { visitorId, deadline } = req.body
+        await visitorRecord.update({
+            where: {
+                id: visitorId,
+            },
+        }, {
+            deadline,
+            pass_time: Date.now(),
+        })
+        res.success()
+    },
+
+    /**
+     * 业主认证
+     */
+    async residentVerify(req, res, next) {
+        const { selfId } = req.auth
+        const people = peoples.findOne({
+            where: { id: selfId },
+        })
+        if (people.type !== UserRank.Resident.value) {
+            return next(new Error('您不是业主'))
+        }
+        const { phone } = req.body
+        await Promise.all([
+            people.update({ phone }),
+            users.update({
+                where: { people_id: selfId },
+            }, req.body),
+        ])
+        res.success()
+    },
+
+    /**
+     * 提交故障
+     */
+    async addBug(req, res) {
+        const { selfId } = req.auth.selfId
+        req.body.people_id = selfId
+        await bug.create(req.body)
+        const user = await peoples.findById(selfId)
+        const admins = await peoples.findAll({
+            where: { adress_id: user.adress_id, rank: UserRank.Admin.value },
+            attributes: ['id'],
+        })
+        for (const admin of admins) {
+            notice.create({
+                people_id: admin.id,
+                title: '收到一条故障申报通知',
+                content: `申报人为: ${user.name}, 申报时间为: ${new Date()}`,
+                send_id: selfId,
+            })
+        }
+        res.success()
+    },
+
+    /**
+     * 获取文章列表
+     */
+    async getArticles(req, res) {
+        const { pageNo, pageSize, status } = req.query
+        const query = {}
+        if (status) {
+            query.status = status
+        }
+        const data = {
+            datas: [],
+            pageNo,
+            pageSize,
+            total: '',
+        }
+        data.datas = await article.findAll({
+            where: query,
+            offset: (pageNo - 1) * pageSize,
+            limit: pageSize,
+        })
+        data.total = await visitorRecord.count({ where: query })
+        res.success(data)
+    },
+
+    /**
+     * 获取文章详情
+     */
+    async getArticle(req, res) {
+        const { articleId } = req.query
+        const data = await article.findById(articleId)
+        res.success(data)
+    },
+
 }

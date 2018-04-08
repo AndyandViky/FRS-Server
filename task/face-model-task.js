@@ -37,17 +37,19 @@ schedule.scheduleJob('* */5 * * * *', async () => {
 
     // 计算数据
     for (const item of result) {
-        const average = item.faces.reduce((sum, face) => {
-            return sum + face.semblance
-        }, 0) / item.faces.length
-        // 判断平均值
-        if (average < 0.65) {
-            notice.create({
-                people_id: item.people_id,
-                title: '更换人脸数据提醒',
-                content: '您好. 系统检测到当前您存储的人脸数据模型相似度有所下降, 请尽快替换相似度较低的数据...',
-                send_id: 0,
-            })
+        if (item.faces.length > 0) {
+            const average = item.faces.reduce((sum, face) => {
+                return sum + face.semblance
+            }, 0) / item.faces.length
+            // 判断平均值
+            if (average < 0.65) {
+                notice.create({
+                    people_id: item.people_id,
+                    title: '更换人脸数据提醒',
+                    content: '您好. 系统检测到当前您存储的人脸数据模型相似度有所下降, 请尽快替换相似度较低的数据...',
+                    send_id: 0,
+                })
+            }
         }
     }
 })

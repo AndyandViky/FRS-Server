@@ -6,6 +6,7 @@
  */
 const schedule = require('node-schedule')
 const { peoples, enums, cameraRecord } = require('../models')
+const { faceSvc } = require('../service')
 
 const { DataStatus } = enums
 
@@ -44,7 +45,10 @@ schedule.scheduleJob('* * * * */1 *', async () => {
             const maxRecord = records.reduce((num1, num2) => {
                 return num1.semblance > num2.semblance ? num1 : num2
             })
-            // 调用接口更新模型 传入peopleId 和 maxRecord.id
+            if (maxRecord) {
+                // 调用接口更新模型 传入peopleId 和 maxRecord.id
+                await faceSvc.updateSecondModel(peopleId, maxRecord.id)
+            }
         }
         cnt++
         if (cnt === result.length) clearInterval(timer)
