@@ -3,6 +3,11 @@ module.exports = {
     DEBUG: true,
     MAILER_ON: false,
 
-    BE_DOMAIN: 'http://localhost:8000',     // http://flashbeep.free.ngrok.cc
-    FRONT_DOMAIN: 'http://localhost:8080',
+    BE_DOMAIN: 'http://localhost:5000',
+    FRONT_DOMAIN: 'http://localhost:5000',
+
+    DATABASE: 'face',
+    USER: 'root',
+    PASSWORD: '888888',
+    HOST: 'localhost',
 }

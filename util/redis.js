@@ -1,8 +1,6 @@
 const config = require('../config')
 const Redis  = require('ioredis')
 
-const logger = require('../util').logger(config.API_LOG_PATH)
-
 const client = new Redis({
     port: config.REDIS_PORT,
     host: config.REDIS_HOST,
@@ -12,7 +10,6 @@ const client = new Redis({
 
 client.on('error', (err) => {
     if (err) {
-        logger.info('connect to redis error, check your redis config', err)
         process.exit(1)
     }
 })

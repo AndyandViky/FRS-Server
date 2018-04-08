@@ -7,4 +7,6 @@ module.exports = {
     logger: require('./logger'),
     redis: require('./redis'),
     xml: require('./xml'),
+    sequelize: require('./sequelize'),
+    faceRequest: require('./faceRequest'),
 }

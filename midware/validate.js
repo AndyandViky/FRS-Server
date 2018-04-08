@@ -17,10 +17,51 @@ const Type = {
 
 module.exports = {
 
-    getJsConfig: [
-        ['url', Type.Url, true],
-        ['receiverId', Type.String, true],
-        ['jsApiList', Type.String, true],
+    login: [
+        ['email', Type.String, false],
+        ['phone', Type.Phone, false],
+        ['password', Type.String, true],
+    ],
+
+    register: [
+        ['type', Type.Number, true],
+        ['email', Type.String, true],
+        ['name', Type.String, true],
+        ['password', Type.String, true],
+        ['confirmPwd', Type.String, true],
+        ['gender', Type.Number, true],
+        ['house_number', Type.Number, true],
+        ['adress_id', Type.Number, true],
+    ],
+
+    actived: [
+        ['token', Type.String, true],
+    ],
+
+    activeModel: [
+        ['modeId', Type.Number, true],
+    ],
+
+    getVisitors: [
+        ['pageNo', Type.Number, true],
+        ['pageSize', Type.Number, true],
+        ['status', Type.Number, false],
+        ['userId', Type.Number, false],
+    ],
+
+    getNoticeList: [
+        ['pageNo', Type.Number, true],
+        ['pageSize', Type.Number, true],
+        ['status', Type.Number, false],
+        ['userId', Type.Number, false],
+    ],
+
+    updateStatus: [
+        ['noticeId', Type.Number, true],
+    ],
+
+    removeNotice: [
+        ['noticeId', Type.Number, true],
     ],
 
     /**

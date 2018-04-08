@@ -2,9 +2,32 @@ const express = require('express')
 const { validate } = require('./midware')
 const {
     test,
+    notice,
+    user,
 } = require('./ctrl')
 
 const router = express.Router()
+
+/**
+ * 用户相关
+ */
+register('post', '/login', user.login)
+register('post', '/register', user.register)
+register('get', '/user', user.getUserInfo)
+register('get', '/face', user.getUserFaceModel)
+register('post', '/face', user.addFaceModel)
+register('get', '/user/activate', user.actived)
+register('put', '/face/active', user.activeModel)
+
+/**
+ * 通知相关
+ */
+// 获取通知列表
+register('get', '/notices', notice.getNoticeList)
+// 更新通知状态
+register('put', '/notice', notice.updateStatus)
+// 删除通知
+register('delete', '/notice', notice.removeNotice)
 
 /**
  * 测试接口

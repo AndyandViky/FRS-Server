@@ -7,9 +7,8 @@ const config = {
     JWT_TOKEN_TIMEOUT: 864000, // 10 days
     NO_AUTH_REG: /\.log$|\.ico$|^\/socket.io/,
     NO_AUTH_PATHS: [
-        '/wechat/event',
-        '/auth',
-        '/mana/auth',
+        'login',
+        'register',
         '/test/jwt',
     ],
 
@@ -28,6 +27,12 @@ const config = {
 
     // Paths
     QRCODE_FOLDER: './static/qrcode/',
+
+    EMAIL: {
+        SERVICE: '1026530721',
+        USER: '1026530721@qq.com',
+        PASSWORD: 'jbfhcjxncoidbfjj',
+    },
 }
 
 module.exports = config

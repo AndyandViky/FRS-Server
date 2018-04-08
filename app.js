@@ -26,7 +26,7 @@ app.use(bodyParser.urlencoded({ extended: true, limit: '1mb' }))
 app.use(express.static(path.join(__dirname, 'static')))
 app.use(cors)
 app.use(httplog)
-app.use(auth)
+// app.use(auth)
 app.use(router)
 
 // catch 404 and forward to error handler

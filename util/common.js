@@ -1,4 +1,5 @@
 const moment = require('moment')
+const crypto = require('crypto')
 
 moment.locale('zh-cn')
 
@@ -45,4 +46,10 @@ exports.randomString = function (len, type = 'string') {
         pwd += $chars.charAt(Math.floor(Math.random() * maxPos))
     }
     return pwd
+}
+
+exports.encryptInfo = function (content) {
+    const sha1 = crypto.createHash('sha1')
+    sha1.update(content)
+    return sha1.digest('hex')
 }
