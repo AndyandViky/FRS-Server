@@ -110,25 +110,49 @@ module.exports = {
     /**
      * 增加人脸模型
      */
-    async addFaceModel(req, res) {
+    async addFaceModel(req, res, next) {
         const { selfId } = req.auth
         const form = new multiparty.Form()
         form.uploadDir = UploadPath.Face.value
         form.parse(req, (err, fields, files) => {
-            const imageMagick = gm.subClass({ imageMagick: true })
+            if (!files) return next(new Error('请上传图片'))
             const paths = files.file[0].path
-            imageMagick(paths).resize(640, 480, '!').autoOrient().write(paths, async (err, result) => {
-                const atta = await attachment.create({
-                    people_id: selfId,
-                    paths,
-                })
-                // 调用api接口, 增加模型
-                faceSvc.addModel({
-                    id: selfId,
-                    imageId: atta.id,
-                    isActive: DataStatus.NotActived.value,
-                })
-                res.success()
+            const imageMagick = gm.subClass({ imageMagick: true })
+            imageMagick(paths).size(async (err, value) => {
+                if (err) return next(new Error('获取失败, 请重新上传'))
+                let Rwidth
+                let Rheight
+                let rate
+                if (value.width > value.height) {
+                    rate = 640 / value.width
+                    Rwidth = 640
+                    Rheight = Math.floor(value.height * rate)
+                } else {
+                    rate = 640 / value.height
+                    Rheight = 640
+                    Rwidth = Math.floor(value.width * rate)
+                }
+                imageMagick(paths)
+                    .resize(Rwidth, Rheight, '!')
+                    .autoOrient()
+                    .write(paths, async (err) => {
+                        const atta = await attachment.create({
+                            people_id: selfId,
+                            path: paths,
+                            width: Rwidth,
+                            height: Rheight,
+                        })
+                        // 调用api接口, 增加模型
+                        const apiRes = await faceSvc.addModel({
+                            id: selfId,
+                            imageId: atta.id,
+                            isActived: DataStatus.NotActived.value,
+                        })
+                        if (apiRes.code === -1) {
+                            return next(new Error(apiRes.msg))
+                        }
+                        res.success()
+                    })
             })
         })
     },
