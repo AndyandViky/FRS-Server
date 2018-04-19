@@ -39,6 +39,12 @@ module.exports = {
         ['token', Type.String, true],
     ],
 
+    updatePwd: [
+        ['oldPwd', Type.String, true],
+        ['newPwd', Type.String, true],
+        ['confirmPwd', Type.String, true],
+    ],
+
     activeModel: [
         ['modeId', Type.Number, true],
     ],
@@ -134,6 +140,20 @@ module.exports = {
         ['result', Type.String, true],
     ],
 
+    getBugs: [
+        ['pageNo', Type.Number, true],
+        ['pageSize', Type.Number, true],
+        ['userId', Type.Number, false],
+    ],
+
+    getBug: [
+        ['bugId', Type.Number, true],
+    ],
+
+    deleteBug: [
+        ['bugId', Type.Number, true],
+    ],
+
     addArticle: [
         ['title', Type.String, true],
         ['content', Type.String, true],
@@ -142,14 +162,16 @@ module.exports = {
         ['category', Type.String, false],
     ],
 
-    getBugs: [
-        ['pageNo', Type.Number, true],
-        ['pageSize', Type.Number, true],
-        ['userId', Type.Number, false],
+    changeArticle: [
+        ['title', Type.String, true],
+        ['content', Type.String, true],
+        ['status', Type.Number, true],
+        ['tag', Type.String, false],
+        ['category', Type.String, false],
     ],
 
-    getBug: [
-        ['id', Type.Number, true],
+    deleteArticle: [
+        ['articleId', Type.Number, true],
     ],
 
     getResidents: [

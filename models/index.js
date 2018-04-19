@@ -28,6 +28,12 @@ users.belongsTo(peoples, { foreignKey: 'people_id' })
 peoples.hasMany(cameraRecord, { foreignKey: 'id' })
 cameraRecord.belongsTo(peoples, { foreignKey: 'people_id' })
 
+question.hasMany(answer, { foreignKey: 'id' })
+question.belongsTo(peoples, { foreignKey: 'people_id' })
+answer.belongsTo(question, { foreignKey: 'question_id' })
+answer.belongsTo(peoples, { foreignKey: 'people_id' })
+peoples.hasMany(question, { foreignKey: 'id' })
+
 module.exports = {
     admin,
     adress,

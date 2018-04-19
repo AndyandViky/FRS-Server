@@ -10,6 +10,7 @@ const config = {
         'login',
         'register',
         '/test/jwt',
+        '/user/active',
     ],
 
     // logs location

@@ -7,9 +7,6 @@ const {
     attachment,
     visitorRecord,
     cameraRecord,
-    bug,
-    notice,
-    article,
     config,
 } = require('../models')
 const { common } = require('../util')
@@ -18,7 +15,7 @@ const sequelize = require('sequelize')
 const { emailSvc, jwtSvc, userSvc, faceSvc } = require('../service')
 const gm = require('gm')
 
-const { DataStatus, FaceModel, UploadPath, UserRank, DoorStatus } = enums
+const { DataStatus, FaceModel, UploadPath, UserRank } = enums
 /**
  * 用户相关
  */
@@ -124,6 +121,37 @@ module.exports = {
     },
 
     /**
+     * 更新用户头像
+     */
+    async uploadAvatar(req, res) {
+        const form = new multiparty.Form()
+        form.uploadDir = UploadPath.Attachment.value
+        form.parse(req, async (err, fields, files) => {
+            const paths = files.file[0].path
+            await peoples.update({
+                avatar: paths,
+            }, {
+                where: { id: req.auth.selfId },
+            })
+            res.success()
+        })
+    },
+
+    /**
+     * 修改密码
+     */
+    async updatePwd(req, res, next) {
+        const { oldPwd, newPwd, confirmPwd } = req.body
+        if (newPwd !== confirmPwd) return next(new Error('两次输入密码不一致'))
+        const people = await peoples.findById(req.auth.selfId, 'password')
+        if (people.password !== common.encryptInfo(oldPwd)) {
+            return next(new Error('输入旧密码错误'))
+        }
+        await people.update({ password: common.encryptInfo(newPwd) })
+        res.success()
+    },
+
+    /**
      * 获取用户人脸模型
      */
     async getUserFaceModel(req, res) {
@@ -215,7 +243,7 @@ module.exports = {
     },
 
     /**
-     * 获取访客记录
+     * 获取门禁记录
      * 传 0 代表获取全部
      */
     async getCameraRecords(req, res) {
@@ -247,7 +275,7 @@ module.exports = {
     },
 
     /**
-     * 业主获取当前访客记录
+     * 根据id获取访客记录
      */
     async getVisitors(req, res) {
         const { pageNo, pageSize, status, userId } = req.query
@@ -271,197 +299,6 @@ module.exports = {
         })
         data.total = await visitorRecord.count({ where: query })
         res.success(data)
-    },
-
-    /**
-     * 业主通过访客访问
-     */
-    async approveVisitor(req, res) {
-        const { visitorId } = req.body
-        await visitorRecord.update({
-            where: {
-                id: visitorId,
-            },
-        }, {
-            pass_time: Date.now(),
-        })
-        res.success()
-    },
-
-    /**
-     * 业主手机开门
-     */
-    async openDoor(req, res, next) {
-        const { selfPwd } = req.body
-        // 判断密码  --- 暂不验证
-        const result = await faceSvc.openDoor({ type: 0 })
-        if (result.code === -1) {
-            return next(new Error(result.data))
-        }
-        await cameraRecord.create({
-            people_id: req.auth.selfId,
-            face_img: '',
-            type: DoorStatus.App.value,
-        })
-        res.success()
-    },
-
-    /**
-     * 业主注册访客
-     */
-    async registerVisitor(req, res, next) {
-        const { phone, facePath } = req.body
-        const people = await peoples.findOne({
-            where: { phone },
-            attributes: ['id'],
-        })
-        req.body.status = DataStatus.Actived.value
-        req.body.pass_time = Date.now()
-        let userId
-        if (people) {
-            // 已注册
-            userId = people.id
-            req.body.visitor_id = people.id
-            await visitorRecord.create(req.body)
-        } else {
-            // 未注册
-            req.body.types = UserRank.Visitor.value
-            req.body.email = phone
-            req.body.is_active = DataStatus.Actived.value
-            req.body.password = common.encryptInfo('123456')
-            const rePeople = await peoples.create(req.body)
-            req.body.visitor_id = rePeople.id
-            userId = rePeople.id
-            await Promise.all([
-                visitorRecord.create(req.body),
-                notice.create({
-                    people_id: req.auth.selfId,
-                    title: '访客注册通知',
-                    content: `您当前申请的访客尚未注册, 我们已为您注册, 初始帐号为: ${phone} 初始密码为: 123456`,
-                    send_id: 0,
-                }),
-            ])
-        }
-        let isActived = DataStatus.Actived.value
-        const faceCount = await faceData.count({
-            where: { people_id: userId, is_active: DataStatus.Actived.value },
-        })
-        if (faceCount > 0) isActived = DataStatus.NotActived.value
-        const imageData = await attachment.findOne({
-            where: { path: facePath },
-            attributes: ['id'],
-        })
-        const apiRes = await faceSvc.addModel({
-            id: userId,
-            imageId: imageData.id,
-            isActived,
-        })
-        if (apiRes.code === -1) {
-            return next(new Error(apiRes.data))
-        }
-        await config.update({
-            isUpdate: DataStatus.Actived.value,
-        }, {
-            where: { id: 1 },
-        })
-        res.success()
-    },
-
-    /**
-     * 业主认证
-     */
-    async residentVerify(req, res, next) {
-        const { selfId } = req.auth
-        const people = await peoples.findOne({
-            where: { id: selfId },
-        })
-        if (people.types !== UserRank.Resident.value) {
-            return next(new Error('您不是业主'))
-        }
-        const { phone } = req.body
-        await Promise.all([
-            peoples.update(
-                { phone },
-                {
-                    where: { id: selfId },
-                },
-            ),
-            users.update(req.body, {
-                where: { people_id: selfId },
-            }),
-        ])
-        res.success()
-    },
-
-    /**
-     * 提交故障
-     */
-    async addBug(req, res) {
-        const { selfId } = req.auth
-        req.body.people_id = selfId
-        await bug.create(req.body)
-        const user = await peoples.findById(selfId)
-        const admins = await peoples.findAll({
-            where: { adress_id: user.adress_id, types: UserRank.Admin.value },
-            attributes: ['id'],
-        })
-        for (const admin of admins) {
-            await notice.create({
-                people_id: admin.id,
-                title: '故障申报通知',
-                content: `申报人为: ${user.name}, 申报时间为: ${new Date()}`,
-                send_id: selfId,
-            })
-        }
-        res.success()
-    },
-
-    /**
-     * 获取文章列表
-     */
-    async getArticles(req, res) {
-        const { pageNo, pageSize, status } = req.query
-        const query = {}
-        if (status) {
-            query.status = status
-        }
-        const data = {
-            datas: [],
-            pageNo,
-            pageSize,
-            total: '',
-        }
-        data.datas = await article.findAll({
-            where: query,
-            offset: (pageNo - 1) * pageSize,
-            limit: pageSize,
-        })
-        data.total = await visitorRecord.count({ where: query })
-        res.success(data)
-    },
-
-    /**
-     * 获取文章详情
-     */
-    async getArticle(req, res) {
-        const { articleId } = req.query
-        const data = await article.findById(articleId)
-        res.success(data)
-    },
-
-    /**
-     * 访客申请访问
-     */
-    async applyVisite(req, res, next) {
-        const { selfId } = req.auth
-        const people = peoples.findOne({
-            where: { id: selfId },
-        })
-        if (people.type !== UserRank.Visitor.value) {
-            return next(new Error('您不是访客'))
-        }
-        await visitorRecord.create(req.body)
-        res.success()
     },
 
     /**

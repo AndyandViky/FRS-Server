@@ -6,6 +6,11 @@ const {
     user,
     attachment,
     admin,
+    president,
+    visiter,
+    bug,
+    article,
+    question,
 } = require('./ctrl')
 
 const router = express.Router()
@@ -20,38 +25,57 @@ register('get', '/face', user.getUserFaceModel)
 register('post', '/face', user.addFaceModel)
 register('put', '/user/active', user.actived)
 register('put', '/face/active', user.activeModel)
-register('post', '/bug', user.addBug)
+register('post', '/bug', bug.addBug)
 register('get', '/camera/records', user.getCameraRecords)
+register('put', '/avatar', user.uploadAvatar)
+register('put', '/password', user.updatePwd)
+
 /**
  * 业主
  */
-register('put', '/verify', user.residentVerify)
+register('put', '/verify', president.residentVerify)
 register('get', '/visitors', user.getVisitors)
-register('put', '/visitors', user.approveVisitor)
-register('get', '/articles', user.getArticles)
-register('get', '/article', user.getArticle)
-register('post', '/visitor', user.registerVisitor)
-register('post', '/open/door', user.openDoor)
+register('put', '/visitors', president.approveVisitor)
+register('post', '/visitor', president.registerVisitor)
+register('post', '/open/door', president.openDoor)
+
+/**
+ * 文章
+ */
+register('get', '/articles', article.getArticles)
+register('get', '/article', article.getArticle)
 
 /**
  * 访客
  */
 // 申请访问
-register('post', '/visite', user.applyVisite)
+register('post', '/visite', visiter.applyVisite)
 
 /**
  * 管理员相关
  */
 // 通过业主申请
 register('put', '/resident', admin.approveResident)
-register('put', '/bug', admin.operatedBug)
-register('post', '/article', admin.addArticle)
-register('get', '/bugs', admin.getBugs)
-register('get', '/bug', admin.getBug)
+register('put', '/bug', bug.operatedBug)
+register('post', '/article', article.addArticle)
+register('put', '/article', article.changeArticle)
+register('delete', '/article', article.deleteArticle)
+register('get', '/bugs', bug.getBugs)
+register('get', '/bug', bug.getBug)
+register('delete', '/bug', bug.deleteBug)
 register('get', '/residents', admin.getResidents)
 register('post', '/open/camera', admin.openCamera)
 register('post', '/close/camera', admin.closeCamera)
 register('get', '/cameras', admin.getCameras)
+
+/**
+ * 问题回答相关
+ */
+// register('post', '/question', question.addQuestion)
+// register('get', '/questions', question.getQuestions)
+// register('get', '/question', question.getQuestion)
+// register('delete', '/question', question.deleteQuestion)
+// register('post', '/answer', question.addAnswer)
 
 /**
  * 通知相关

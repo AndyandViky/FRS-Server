@@ -1,7 +1,5 @@
-const { users, enums, bug, notice, article, peoples, cameraConfig } = require('../models')
+const { users, enums, notice, peoples, cameraConfig } = require('../models')
 const { faceSvc } = require('../service')
-const path = require('path')
-const fileDisplay = require('../script/import-faceModel')
 
 const { DataStatus, UserRank } = enums
 module.exports = {
@@ -46,64 +44,6 @@ module.exports = {
             ],
         })
         data.total = await peoples.count({ where: query })
-        res.success(data)
-    },
-    /**
-     * 处理故障信息
-     */
-    async operatedBug(req, res) {
-        const { bugId, result } = req.body
-        await bug.update({
-            result,
-            operated_id: req.auth.selfId,
-        }, {
-            where: { id: bugId },
-        })
-        const data = await bug.findById(bugId)
-        await notice.create({
-            people_id: data.people_id,
-            title: '故障申报处理',
-            content: `您申报的故障已处理完毕, 处理结果: ${result}`,
-            send_id: 0,
-        })
-        res.success()
-    },
-
-    /**
-     * 发布文章
-     */
-    async addArticle(req, res) {
-        await article.create(req.body)
-        res.success()
-    },
-
-    /**
-     * 获取故障列表
-     */
-    async getBugs(req, res) {
-        const { pageNo, pageSize, userId } = req.query
-        const query = {}
-        if (userId) query.people_id = userId
-        const data = {
-            datas: [],
-            pageNo,
-            pageSize,
-            total: '',
-        }
-        data.datas = await bug.findAll({
-            where: query,
-            offset: (pageNo - 1) * pageSize,
-            limit: pageSize,
-        })
-        data.total = await bug.count({ where: query })
-        res.success(data)
-    },
-
-    /**
-     * 获取故障详情
-     */
-    async getBug(req, res) {
-        const data = await bug.findById(req.query.id)
         res.success(data)
     },
 
