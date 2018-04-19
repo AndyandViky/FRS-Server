@@ -28,6 +28,7 @@ module.exports = {
             where: query,
             offset: (pageNo - 1) * pageSize,
             limit: pageSize,
+            attributs: ['id', 'people_id', 'title', 'content', 'status', 'send_id', 'created_at'],
         })
         data.total = await notice.count({ where: query })
         res.success(data)

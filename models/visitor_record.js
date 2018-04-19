@@ -12,17 +12,13 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.INTEGER(11),
             allowNull: false,
             references: {
-                model: 'visitor',
+                model: 'peoples',
                 key: 'id',
             },
         },
         belong: {
             type: DataTypes.INTEGER(11),
             allowNull: false,
-            references: {
-                model: 'users',
-                key: 'id',
-            },
         },
         deadline: {
             type: DataTypes.INTEGER(11),
@@ -30,7 +26,16 @@ module.exports = function (sequelize, DataTypes) {
         },
         pass_time: {
             type: DataTypes.INTEGER(11),
-            allowNull: true,
+            allowNull: false,
+        },
+        reason: {
+            type: DataTypes.STRING(255),
+            allowNull: false,
+        },
+        status: {
+            type: DataTypes.INTEGER(11),
+            allowNull: false,
+            defaultValue: '0',
         },
         created_at: {
             type: DataTypes.DATE,

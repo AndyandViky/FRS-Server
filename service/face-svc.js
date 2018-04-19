@@ -43,4 +43,16 @@ module.exports = {
         const result = await faceRequest.put(url, data)
         return result
     },
+
+    async openDoor(data) {
+        const url = `${config.BE_DOMAIN}/open/door`
+        const result = await faceRequest.post(url, data)
+        return result
+    },
+
+    async ageText(data) {
+        const url = `${config.BE_DOMAIN}/age/test`
+        const result = await faceRequest.post(url, data)
+        return result
+    },
 }

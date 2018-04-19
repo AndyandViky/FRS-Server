@@ -33,6 +33,10 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.STRING(255),
             allowNull: true,
         },
+        self_password: {
+            type: DataTypes.STRING(25),
+            allowNull: false,
+        },
         is_verify: {
             type: DataTypes.INTEGER(11),
             allowNull: true,

@@ -6,9 +6,11 @@ const {
     faceData,
     attachment,
     visitorRecord,
+    cameraRecord,
     bug,
     notice,
     article,
+    config,
 } = require('../models')
 const { common } = require('../util')
 const multiparty = require('multiparty')
@@ -16,7 +18,7 @@ const sequelize = require('sequelize')
 const { emailSvc, jwtSvc, userSvc, faceSvc } = require('../service')
 const gm = require('gm')
 
-const { DataStatus, FaceModel, UploadPath, UserRank } = enums
+const { DataStatus, FaceModel, UploadPath, UserRank, DoorStatus } = enums
 /**
  * 用户相关
  */
@@ -63,10 +65,12 @@ module.exports = {
                 } else if (user.type === UserRank.Resident.value) {
                     return users.create({
                         people_id: user.id,
+                        self_password: common.encryptInfo('123456'),
                     }, { transaction: t })
                 } throw new Error()
             })
         })
+        res.success()
     },
 
     /**
@@ -90,19 +94,42 @@ module.exports = {
     /**
      * 获取用户信息
      */
-    async getUserInfo(req, res) {
-        const user = peoples.findOne({
-            where: { id: req.auth.selfId },
+    async getUserInfo(req, res, next) {
+        const user = await peoples.findOne({
+            where: { id: req.auth.selfId, is_active: DataStatus.Actived.value },
         })
-        res.success(user)
+        if (user) {
+            const result = {}
+            Object.assign(result, {
+                age: user.age,
+                avatar: user.avatar,
+                email: user.email,
+                gender: user.gender,
+                house_number: user.house_number,
+                id: user.id,
+                is_active: user.is_active,
+                phone: user.phone,
+                types: user.types,
+                name: user.name,
+            })
+            if (user.types === UserRank.Resident.value) {
+                const resident = await users.findOne({
+                    where: { people_id: user.id },
+                    attributes: ['is_verify'],
+                })
+                Object.assign(result, { is_verify: resident.is_verify })
+            }
+            return res.success(result)
+        } return next(new Error('用户不存在'))
     },
 
     /**
      * 获取用户人脸模型
      */
     async getUserFaceModel(req, res) {
-        const data = faceData.findAll({
+        const data = await faceData.findAll({
             where: { people_id: req.auth.selfId, type: FaceModel.First.value },
+            attributes: ['id', 'model_image'],
         })
         res.success(data)
     },
@@ -142,16 +169,26 @@ module.exports = {
                             width: Rwidth,
                             height: Rheight,
                         })
+                        let isActived = DataStatus.Actived.value
+                        const count = await faceData.count({
+                            where: { people_id: selfId, is_active: DataStatus.Actived.value },
+                        })
+                        if (count > 0) isActived = DataStatus.NotActived.value
                         // 调用api接口, 增加模型
                         const apiRes = await faceSvc.addModel({
                             id: selfId,
                             imageId: atta.id,
-                            isActived: DataStatus.NotActived.value,
+                            isActived,
                         })
                         if (apiRes.code === -1) {
-                            return next(new Error(apiRes.msg))
+                            return next(new Error(apiRes.data))
                         }
-                        res.success()
+                        await config.update({
+                            isUpdate: DataStatus.Actived.value,
+                        }, {
+                            where: { id: 1 },
+                        })
+                        res.success({ id: atta.id, path: atta.path })
                     })
             })
         })
@@ -178,16 +215,48 @@ module.exports = {
     },
 
     /**
+     * 获取访客记录
+     * 传 0 代表获取全部
+     */
+    async getCameraRecords(req, res) {
+        const { pageNo, pageSize, type, userId } = req.query
+        const { selfId } = req.auth
+        const query = {}
+        if (type) {
+            query.type = type
+        }
+        if (userId !== undefined && userSvc.checkAdmin(selfId)) {
+            if (userId !== 0) {
+                query.people_id = userId
+            } else query.people_id = { $gt: userId }
+        } else query.people_id = selfId
+        const data = {
+            datas: [],
+            pageNo,
+            pageSize,
+            total: '',
+        }
+        data.datas = await cameraRecord.findAll({
+            include: [peoples],
+            where: query,
+            offset: (pageNo - 1) * pageSize,
+            limit: pageSize,
+        })
+        data.total = await cameraRecord.count({ where: query })
+        res.success(data)
+    },
+
+    /**
      * 业主获取当前访客记录
      */
     async getVisitors(req, res) {
         const { pageNo, pageSize, status, userId } = req.query
         const { selfId } = req.auth
-        const query = { people_id: selfId }
+        const query = { belong: selfId }
         if (status) {
             query.status = status
         }
-        if (userId && userSvc.checkAdmin(selfId)) query.people_id = userId
+        if (userId && userSvc.checkAdmin(selfId)) query.belong = userId
         const data = {
             datas: [],
             pageNo,
@@ -195,6 +264,7 @@ module.exports = {
             total: '',
         }
         data.datas = await visitorRecord.findAll({
+            include: [peoples],
             where: query,
             offset: (pageNo - 1) * pageSize,
             limit: pageSize,
@@ -207,14 +277,92 @@ module.exports = {
      * 业主通过访客访问
      */
     async approveVisitor(req, res) {
-        const { visitorId, deadline } = req.body
+        const { visitorId } = req.body
         await visitorRecord.update({
             where: {
                 id: visitorId,
             },
         }, {
-            deadline,
             pass_time: Date.now(),
+        })
+        res.success()
+    },
+
+    /**
+     * 业主手机开门
+     */
+    async openDoor(req, res, next) {
+        const { selfPwd } = req.body
+        // 判断密码  --- 暂不验证
+        const result = await faceSvc.openDoor({ type: 0 })
+        if (result.code === -1) {
+            return next(new Error(result.data))
+        }
+        await cameraRecord.create({
+            people_id: req.auth.selfId,
+            face_img: '',
+            type: DoorStatus.App.value,
+        })
+        res.success()
+    },
+
+    /**
+     * 业主注册访客
+     */
+    async registerVisitor(req, res, next) {
+        const { phone, facePath } = req.body
+        const people = await peoples.findOne({
+            where: { phone },
+            attributes: ['id'],
+        })
+        req.body.status = DataStatus.Actived.value
+        req.body.pass_time = Date.now()
+        let userId
+        if (people) {
+            // 已注册
+            userId = people.id
+            req.body.visitor_id = people.id
+            await visitorRecord.create(req.body)
+        } else {
+            // 未注册
+            req.body.types = UserRank.Visitor.value
+            req.body.email = phone
+            req.body.is_active = DataStatus.Actived.value
+            req.body.password = common.encryptInfo('123456')
+            const rePeople = await peoples.create(req.body)
+            req.body.visitor_id = rePeople.id
+            userId = rePeople.id
+            await Promise.all([
+                visitorRecord.create(req.body),
+                notice.create({
+                    people_id: req.auth.selfId,
+                    title: '访客注册通知',
+                    content: `您当前申请的访客尚未注册, 我们已为您注册, 初始帐号为: ${phone} 初始密码为: 123456`,
+                    send_id: 0,
+                }),
+            ])
+        }
+        let isActived = DataStatus.Actived.value
+        const faceCount = await faceData.count({
+            where: { people_id: userId, is_active: DataStatus.Actived.value },
+        })
+        if (faceCount > 0) isActived = DataStatus.NotActived.value
+        const imageData = await attachment.findOne({
+            where: { path: facePath },
+            attributes: ['id'],
+        })
+        const apiRes = await faceSvc.addModel({
+            id: userId,
+            imageId: imageData.id,
+            isActived,
+        })
+        if (apiRes.code === -1) {
+            return next(new Error(apiRes.data))
+        }
+        await config.update({
+            isUpdate: DataStatus.Actived.value,
+        }, {
+            where: { id: 1 },
         })
         res.success()
     },
@@ -224,18 +372,23 @@ module.exports = {
      */
     async residentVerify(req, res, next) {
         const { selfId } = req.auth
-        const people = peoples.findOne({
+        const people = await peoples.findOne({
             where: { id: selfId },
         })
-        if (people.type !== UserRank.Resident.value) {
+        if (people.types !== UserRank.Resident.value) {
             return next(new Error('您不是业主'))
         }
         const { phone } = req.body
         await Promise.all([
-            people.update({ phone }),
-            users.update({
+            peoples.update(
+                { phone },
+                {
+                    where: { id: selfId },
+                },
+            ),
+            users.update(req.body, {
                 where: { people_id: selfId },
-            }, req.body),
+            }),
         ])
         res.success()
     },
@@ -244,18 +397,18 @@ module.exports = {
      * 提交故障
      */
     async addBug(req, res) {
-        const { selfId } = req.auth.selfId
+        const { selfId } = req.auth
         req.body.people_id = selfId
         await bug.create(req.body)
         const user = await peoples.findById(selfId)
         const admins = await peoples.findAll({
-            where: { adress_id: user.adress_id, rank: UserRank.Admin.value },
+            where: { adress_id: user.adress_id, types: UserRank.Admin.value },
             attributes: ['id'],
         })
         for (const admin of admins) {
-            notice.create({
+            await notice.create({
                 people_id: admin.id,
-                title: '收到一条故障申报通知',
+                title: '故障申报通知',
                 content: `申报人为: ${user.name}, 申报时间为: ${new Date()}`,
                 send_id: selfId,
             })
@@ -294,6 +447,69 @@ module.exports = {
         const { articleId } = req.query
         const data = await article.findById(articleId)
         res.success(data)
+    },
+
+    /**
+     * 访客申请访问
+     */
+    async applyVisite(req, res, next) {
+        const { selfId } = req.auth
+        const people = peoples.findOne({
+            where: { id: selfId },
+        })
+        if (people.type !== UserRank.Visitor.value) {
+            return next(new Error('您不是访客'))
+        }
+        await visitorRecord.create(req.body)
+        res.success()
+    },
+
+    /**
+     * 跨年领测试
+     */
+    async ageText(req, res, next) {
+        const { selfId } = req.auth
+        const form = new multiparty.Form()
+        form.uploadDir = UploadPath.Attachment.value
+        form.parse(req, async (err, fields, files) => {
+            const paths = files.file[0].path
+            const imageMagick = gm.subClass({ imageMagick: true })
+            imageMagick(paths).size(async (err, value) => {
+                if (err) return next(new Error('获取失败, 请重新上传'))
+                let Rwidth
+                let Rheight
+                let rate
+                if (value.width > value.height) {
+                    rate = 640 / value.width
+                    Rwidth = 640
+                    Rheight = Math.floor(value.height * rate)
+                } else {
+                    rate = 640 / value.height
+                    Rheight = 640
+                    Rwidth = Math.floor(value.width * rate)
+                }
+                imageMagick(paths)
+                    .resize(Rwidth, Rheight, '!')
+                    .autoOrient()
+                    .write(paths, async (err) => {
+                        const attr = await attachment.create({
+                            people_id: selfId,
+                            path: paths,
+                            width: Rwidth,
+                            height: Rheight,
+                        })
+                        // 调用api接口, 增加模型
+                        const apiRes = await faceSvc.ageText({
+                            id: selfId,
+                            attachId: attr.id,
+                        })
+                        if (apiRes.code === -1) {
+                            return next(new Error(apiRes.data))
+                        }
+                        res.success({ score: apiRes.data })
+                    })
+            })
+        })
     },
 
 }

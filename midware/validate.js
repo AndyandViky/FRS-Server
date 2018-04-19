@@ -27,6 +27,7 @@ module.exports = {
         ['type', Type.Number, true],
         ['email', Type.String, true],
         ['name', Type.String, true],
+        ['phone', Type.Phone, true],
         ['password', Type.String, true],
         ['confirmPwd', Type.String, true],
         ['gender', Type.Number, true],
@@ -42,9 +43,15 @@ module.exports = {
         ['modeId', Type.Number, true],
     ],
 
+    getCameraRecords: [
+        ['pageNo', Type.Number, true],
+        ['pageSize', Type.Number, true],
+        ['type', Type.Number, false],
+        ['userId', Type.Number, false],
+    ],
+
     addBug: [
         ['title', Type.String, true],
-        ['content', Type.String, true],
         ['content', Type.String, true],
         ['path', Type.String, false],
     ],
@@ -66,6 +73,10 @@ module.exports = {
         ['userId', Type.Number, false],
     ],
 
+    openDoor: [
+        ['selfPwd', Type.Number, true],
+    ],
+
     residentVerify: [
         ['phone', Type.Phone, true],
         ['card_id', Type.IdCardNO, true],
@@ -76,7 +87,18 @@ module.exports = {
 
     approveVisitor: [
         ['visitorId', Type.Number, true],
+    ],
+
+    registerVisitor: [
+        ['name', Type.String, true],
+        ['gender', Type.Number, true],
+        ['age', Type.Number, true],
+        ['phone', Type.Phone, true],
         ['deadline', Type.Number, true],
+        ['belong', Type.Number, true],
+        ['reason', Type.String, true],
+        ['facePath', Type.String, true],
+        ['adress_id', Type.Number, true],
     ],
 
     getNoticeList: [
@@ -94,6 +116,14 @@ module.exports = {
         ['noticeId', Type.Number, true],
     ],
 
+    // 访客
+    applyVisite: [
+        ['belong', Type.Number, true],
+        ['deadline', Type.Number, true],
+        ['pass_time', Type.Number, true],
+        ['reason', Type.String, true],
+    ],
+
     // 管理员
     approveResident: [
         ['userId', Type.Number, true],
@@ -108,8 +138,31 @@ module.exports = {
         ['title', Type.String, true],
         ['content', Type.String, true],
         ['status', Type.Number, true],
-        ['tag', Type.String, true],
-        ['category', Type.String, true],
+        ['tag', Type.String, false],
+        ['category', Type.String, false],
+    ],
+
+    getBugs: [
+        ['pageNo', Type.Number, true],
+        ['pageSize', Type.Number, true],
+        ['userId', Type.Number, false],
+    ],
+
+    getBug: [
+        ['id', Type.Number, true],
+    ],
+
+    getResidents: [
+        ['pageNo', Type.Number, true],
+        ['pageSize', Type.Number, true],
+    ],
+
+    openCamera: [
+        ['cameraNum', Type.Number, true],
+    ],
+
+    closeCamera: [
+        ['cameraNum', Type.Number, true],
     ],
 
     /**

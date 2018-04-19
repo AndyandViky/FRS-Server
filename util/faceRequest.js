@@ -2,7 +2,6 @@ const request = require('request')
 
 module.exports = {
     async post(url, data = {}) {
-        data.auth = '123'
         return new Promise((resolve, reject) => {
             request({
                 url,
@@ -10,6 +9,7 @@ module.exports = {
                 json: true,
                 headers: {
                     'content-type': 'application/json',
+                    Authorization: '123',
                 },
                 body: data,
             }, (error, response, body) => {
@@ -21,7 +21,6 @@ module.exports = {
     },
 
     async get(url, data = {}) {
-        data.auth = '123'
         return new Promise((resolve, reject) => {
             request({
                 url,
@@ -29,6 +28,7 @@ module.exports = {
                 json: true,
                 headers: {
                     'content-type': 'application/json',
+                    Authorization: '123',
                 },
                 body: data,
             }, (error, response, body) => {
@@ -40,7 +40,6 @@ module.exports = {
     },
 
     async put(url, data = {}) {
-        data.auth = '123'
         return new Promise((resolve, reject) => {
             request({
                 url,
@@ -48,6 +47,7 @@ module.exports = {
                 json: true,
                 headers: {
                     'content-type': 'application/json',
+                    Authorization: '123',
                 },
                 body: data,
             }, (error, response, body) => {
@@ -59,7 +59,6 @@ module.exports = {
     },
 
     async delete(url, data = {}) {
-        data.auth = '123'
         return new Promise((resolve, reject) => {
             request({
                 url,
@@ -67,6 +66,7 @@ module.exports = {
                 json: true,
                 headers: {
                     'content-type': 'application/json',
+                    Authorization: '123',
                 },
                 body: data,
             }, (error, response, body) => {

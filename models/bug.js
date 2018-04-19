@@ -15,7 +15,6 @@ module.exports = function (sequelize, DataTypes) {
                 model: 'peoples',
                 key: 'id',
             },
-            unique: true,
         },
         title: {
             type: DataTypes.STRING(70),

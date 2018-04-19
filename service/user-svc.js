@@ -11,7 +11,7 @@ module.exports = {
     async checkAdmin(id) {
         const user = await peoples.findOne({
             where: { id, is_active: DataStatus.Actived.value },
-            attributes: ['type'],
+            attributes: ['types'],
         })
         return !!(user && user.type === UserRank.Admin.value)
     },

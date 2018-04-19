@@ -1,5 +1,6 @@
 const { attachment, enums } = require('../models')
 const multiparty = require('multiparty')
+const gm = require('gm')
 
 const { UploadPath } = enums
 
@@ -7,22 +8,40 @@ module.exports = {
     /**
      * 上传附件
      */
-    async uploadImage(req, res) {
-        const { type } = req.body
-        const imagePath = {
-            auth: UploadPath.Auth.value,
-            bug: UploadPath.Bug.value,
-        }
+    async uploadImage(req, res, next) {
         const { selfId } = req.auth
         const form = new multiparty.Form()
-        form.uploadDir = imagePath[type]
+        form.uploadDir = UploadPath.Attachment.value
         form.parse(req, async (err, fields, files) => {
             const paths = files.file[0].path
-            await attachment.create({
-                people_id: selfId,
-                paths,
+            const imageMagick = gm.subClass({ imageMagick: true })
+            imageMagick(paths).size(async (err, value) => {
+                if (err) return next(new Error('获取失败, 请重新上传'))
+                let Rwidth
+                let Rheight
+                let rate
+                if (value.width > value.height) {
+                    rate = 640 / value.width
+                    Rwidth = 640
+                    Rheight = Math.floor(value.height * rate)
+                } else {
+                    rate = 640 / value.height
+                    Rheight = 640
+                    Rwidth = Math.floor(value.width * rate)
+                }
+                imageMagick(paths)
+                    .resize(Rwidth, Rheight, '!')
+                    .autoOrient()
+                    .write(paths, async (err) => {
+                        const attr = await attachment.create({
+                            people_id: selfId,
+                            path: paths,
+                            width: Rwidth,
+                            height: Rheight,
+                        })
+                        res.success({ id: attr.id, path: paths })
+                    })
             })
-            res.success({ paths })
         })
     },
 

@@ -6,6 +6,12 @@ module.exports = {
         NotActived: { value: 0, text: '未激活' },
     },
 
+    // 门禁状态
+    DoorStatus: {
+        Camera: { value: 0, text: '摄像头' },
+        App: { value: 1, text: 'app' },
+    },
+
     // 读取状态
     ReadStatus: {
         Readed: { value: 1, text: '已读' },
@@ -32,7 +38,6 @@ module.exports = {
     UploadPath: {
         Face: { value: 'static/images/face', text: '人脸图片上传' },
         Avatar: { value: 'static/images/avatar', text: '头像上传' },
-        Bug: { value: 'static/images/bug', text: '故障图片上传' },
-        Auth: { value: 'static/images/auth', text: '身份认证图片上传' },
+        Attachment: { value: 'static/images/attachment', text: '附件图片上传' },
     },
 }

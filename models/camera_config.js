@@ -17,6 +17,11 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: true,
             defaultValue: '0',
         },
+        is_operated: {
+            type: DataTypes.INTEGER(11),
+            allowNull: true,
+            defaultValue: '0',
+        },
         created_at: {
             type: DataTypes.DATE,
             allowNull: false,

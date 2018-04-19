@@ -19,6 +19,7 @@ module.exports = function (sequelize, DataTypes) {
         phone: {
             type: DataTypes.STRING(100),
             allowNull: true,
+            unique: true,
         },
         email: {
             type: DataTypes.STRING(50),
@@ -39,7 +40,7 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: true,
         },
         password: {
-            type: DataTypes.STRING(25),
+            type: DataTypes.STRING(255),
             allowNull: false,
         },
         adress_id: {

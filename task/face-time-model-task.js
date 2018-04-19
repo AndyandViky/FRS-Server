@@ -11,9 +11,10 @@ const { faceSvc } = require('../service')
 const { DataStatus } = enums
 
 // async function test() {
-schedule.scheduleJob('* * * * */1 *', async () => {
+schedule.scheduleJob('*/30 * * * * *', async () => {
     // 从最近的10次门禁记录中选取数值最大的更新
-    const interval = 1000 * 60 * 20 // 内部循环为20分钟一次
+    // const interval = 1000 * 60 * 20 // 内部循环为20分钟一次
+    const interval = 5000 // 内部循环为20分钟一次
     const datas = await peoples.findAll({
         where: { is_active: DataStatus.Actived.value },
         attributes: ['id', 'adress_id'],
@@ -41,13 +42,15 @@ schedule.scheduleJob('* * * * */1 *', async () => {
                     ['created_at', 'DESC'],
                 ],
             })
-            // 获取最大值
-            const maxRecord = records.reduce((num1, num2) => {
-                return num1.semblance > num2.semblance ? num1 : num2
-            })
-            if (maxRecord) {
-                // 调用接口更新模型 传入peopleId 和 maxRecord.id
-                await faceSvc.updateSecondModel(peopleId, maxRecord.id)
+            if (records.length > 0) {
+                // 获取最大值
+                const maxRecord = records.reduce((num1, num2) => {
+                    return num1.semblance > num2.semblance ? num1 : num2
+                })
+                if (maxRecord) {
+                    // 调用接口更新模型 传入peopleId 和 maxRecord.id
+                    await faceSvc.updateSecondModel({ id: peopleId, recordId: maxRecord.id })
+                }
             }
         }
         cnt++
