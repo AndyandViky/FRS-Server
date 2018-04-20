@@ -4,7 +4,7 @@ module.exports = {
     user: require('./user'),
     attachment: require('./attachment'),
     admin: require('./admin'),
-    president: require('./president'),
+    resident: require('./resident'),
     visiter: require('./visiter'),
     bug: require('./bug'),
     article: require('./article'),

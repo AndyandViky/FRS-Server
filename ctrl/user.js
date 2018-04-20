@@ -39,8 +39,11 @@ module.exports = {
         }
         if (user) {
             // 返回 token
-            const jwt = await jwtSvc.sign({ selfId: user.id })
-            return res.success({ data: jwt })
+            const jwt = await jwtSvc.sign({ selfId: user.id, type: user.types })
+            return res.success({
+                user,
+                jwt,
+            })
         } return next(new Error('用户不存在'))
     },
 
@@ -96,27 +99,15 @@ module.exports = {
             where: { id: req.auth.selfId, is_active: DataStatus.Actived.value },
         })
         if (user) {
-            const result = {}
-            Object.assign(result, {
-                age: user.age,
-                avatar: user.avatar,
-                email: user.email,
-                gender: user.gender,
-                house_number: user.house_number,
-                id: user.id,
-                is_active: user.is_active,
-                phone: user.phone,
-                types: user.types,
-                name: user.name,
-            })
+            let isVerify = 1
             if (user.types === UserRank.Resident.value) {
                 const resident = await users.findOne({
                     where: { people_id: user.id },
                     attributes: ['is_verify'],
                 })
-                Object.assign(result, { is_verify: resident.is_verify })
+                isVerify = resident.is_verify
             }
-            return res.success(result)
+            return res.success({ user, isVerify })
         } return next(new Error('用户不存在'))
     },
 

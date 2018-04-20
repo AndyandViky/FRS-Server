@@ -6,12 +6,12 @@ const path = require('path')
 const logger = require('morgan')
 const bodyParser = require('body-parser')
 const config = require('./config')
-const router = require('./router')
+const { admin, user, resident, visitor } = require('./router')
 const expressValidator = require('express-validator')
 const { customValidators } = require('./util')
 
 const app = express()
-const { cors, auth, queryParser, httplog } = require('./midware')
+const { cors, auth, queryParser, httplog, userAuth } = require('./midware')
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'))
@@ -27,7 +27,10 @@ app.use(express.static(path.join(__dirname, 'static')))
 app.use(cors)
 app.use(httplog)
 app.use(auth)
-app.use(router)
+app.use(user)
+app.use('/resident', userAuth, resident)
+app.use('/admin', userAuth, admin)
+app.use('/visitor', userAuth, visitor)
 
 // require('./task/face-time-model-task')
 

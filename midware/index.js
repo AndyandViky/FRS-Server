@@ -4,4 +4,5 @@ module.exports = {
     queryParser: require('./query-parser'),
     validate: require('./validate'),
     httplog: require('./httplog'),
+    userAuth: require('./userAuth'),
 }
