@@ -18,7 +18,7 @@ module.exports = {
     /**
      * 业主通过访客访问
      */
-    async approveVisitor(req, res) {
+    async approveVisite(req, res) {
         const { visitorId } = req.body
         await visitorRecord.update({
             where: {

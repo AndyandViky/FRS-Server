@@ -6,6 +6,7 @@ const {
     resident,
     article,
     question,
+    bug,
 } = require('../ctrl')
 
 const router = express.Router()
@@ -15,9 +16,14 @@ const router = express.Router()
  */
 register('put', '/verify', resident.residentVerify)
 register('get', '/visitors', user.getVisitors)
-register('put', '/visitors', resident.approveVisitor)
+register('put', '/visite', resident.approveVisite)
 register('post', '/visitor', resident.registerVisitor)
 register('post', '/open/door', resident.openDoor)
+
+/**
+ * 故障
+ */
+register('post', '/bug', bug.addBug)
 
 /**
  * 文章

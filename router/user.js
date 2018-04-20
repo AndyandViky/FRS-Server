@@ -4,7 +4,6 @@ const {
     test,
     user,
     attachment,
-    bug,
     question,
 } = require('../ctrl')
 
@@ -14,15 +13,15 @@ const router = express.Router()
  * 用户相关
  */
 register('post', '/login', user.login)
-register('post', '/register', user.register)
-register('get', '/', user.getUserInfo)
+register('post', '/user', user.register)
+register('get', '/user', user.getUserInfo)
+register('put', '/user', user.changeUserInfo)
 register('get', '/face', user.getUserFaceModel)
 register('post', '/face', user.addFaceModel)
 register('put', '/active', user.actived)
 register('put', '/face/active', user.activeModel)
-register('post', '/bug', bug.addBug)
 register('get', '/camera/records', user.getCameraRecords)
-register('put', '/avatar', user.uploadAvatar)
+register('post', '/avatar', user.uploadAvatar)
 register('put', '/password', user.updatePwd)
 
 /**

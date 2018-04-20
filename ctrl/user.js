@@ -35,6 +35,7 @@ module.exports = {
         } else {
             user = await peoples.findOne({
                 where: { phone, is_active: DataStatus.Actived.value, password: pwd },
+                attributes: ['name', 'gender', 'age', 'email', 'phone', 'avatar'],
             })
         }
         if (user) {
@@ -97,6 +98,7 @@ module.exports = {
     async getUserInfo(req, res, next) {
         const user = await peoples.findOne({
             where: { id: req.auth.selfId, is_active: DataStatus.Actived.value },
+            attributes: ['name', 'gender', 'age', 'email', 'phone', 'avatar'],
         })
         if (user) {
             let isVerify = 1
@@ -109,6 +111,16 @@ module.exports = {
             }
             return res.success({ user, isVerify })
         } return next(new Error('用户不存在'))
+    },
+
+    /**
+     * 修改用户信息
+     */
+    async changeUserInfo(req, res) {
+        await peoples.update(req.body, {
+            where: { id: req.auth.selfId },
+        })
+        res.success()
     },
 
     /**

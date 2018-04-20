@@ -3,6 +3,10 @@ const { peoples, enums } = require('../models')
 const { UserRank } = enums
 
 module.exports = async (req, res, next) => {
+    if (req.method === 'OPTIONS') {
+        return next()
+    }
+
     // verify
     const typeBox = {
         admin: UserRank.Admin.value,

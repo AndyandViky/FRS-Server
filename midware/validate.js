@@ -35,6 +35,14 @@ module.exports = {
         ['adress_id', Type.Number, true],
     ],
 
+    changeUserInfo: [
+        ['email', Type.String, true],
+        ['name', Type.String, true],
+        ['phone', Type.Phone, true],
+        ['gender', Type.Number, true],
+        ['age', Type.Number, true],
+    ],
+
     actived: [
         ['token', Type.String, true],
     ],
