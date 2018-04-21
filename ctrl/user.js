@@ -35,15 +35,24 @@ module.exports = {
         } else {
             user = await peoples.findOne({
                 where: { phone, is_active: DataStatus.Actived.value, password: pwd },
-                attributes: ['name', 'gender', 'age', 'email', 'phone', 'avatar'],
+                attributes: ['id', 'name', 'gender', 'age', 'email', 'phone', 'avatar', 'types'],
             })
         }
         if (user) {
+            let isVerify = 1
+            if (user.types === UserRank.Resident.value) {
+                const resident = await users.findOne({
+                    where: { people_id: user.id },
+                    attributes: ['is_verify'],
+                })
+                isVerify = resident.is_verify
+            }
             // 返回 token
             const jwt = await jwtSvc.sign({ selfId: user.id, type: user.types })
             return res.success({
                 user,
                 jwt,
+                isVerify,
             })
         } return next(new Error('用户不存在'))
     },
@@ -98,7 +107,7 @@ module.exports = {
     async getUserInfo(req, res, next) {
         const user = await peoples.findOne({
             where: { id: req.auth.selfId, is_active: DataStatus.Actived.value },
-            attributes: ['name', 'gender', 'age', 'email', 'phone', 'avatar'],
+            attributes: ['id', 'name', 'gender', 'age', 'email', 'phone', 'avatar', 'types'],
         })
         if (user) {
             let isVerify = 1
@@ -146,7 +155,9 @@ module.exports = {
     async updatePwd(req, res, next) {
         const { oldPwd, newPwd, confirmPwd } = req.body
         if (newPwd !== confirmPwd) return next(new Error('两次输入密码不一致'))
-        const people = await peoples.findById(req.auth.selfId, 'password')
+        const people = await peoples.findById(req.auth.selfId, {
+            attributes: ['password'],
+        })
         if (people.password !== common.encryptInfo(oldPwd)) {
             return next(new Error('输入旧密码错误'))
         }
@@ -160,7 +171,7 @@ module.exports = {
     async getUserFaceModel(req, res) {
         const data = await faceData.findAll({
             where: { people_id: req.auth.selfId, type: FaceModel.First.value },
-            attributes: ['id', 'model_image'],
+            attributes: ['id', 'model_image', 'is_active'],
         })
         res.success(data)
     },
@@ -229,19 +240,28 @@ module.exports = {
      * 激活人脸模型
      */
     async activeModel(req, res) {
-        const data = await faceData.findOne({
-            where: { people_id: req.auth.selfId, is_active: DataStatus.Actived.value },
-        })
-        if (data) {
-            data.update({
+        const { modelId } = req.body
+        if (modelId !== 0) {
+            const data = await faceData.findOne({
+                where: { people_id: req.auth.selfId, is_active: DataStatus.Actived.value },
+            })
+            if (data) {
+                await data.update({
+                    is_active: DataStatus.NotActived.value,
+                })
+            }
+            await faceData.update({
+                is_active: DataStatus.Actived.value,
+            }, {
+                where: { id: modelId },
+            })
+        } else {
+            await faceData.update({
                 is_active: DataStatus.NotActived.value,
+            }, {
+                where: { people_id: req.auth.selfId, type: FaceModel.First.value },
             })
         }
-        await faceData.update({
-            is_active: DataStatus.Actived.value,
-        }, {
-            where: { id: req.body.modeId },
-        })
         res.success()
     },
 

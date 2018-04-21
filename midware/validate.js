@@ -54,7 +54,7 @@ module.exports = {
     ],
 
     activeModel: [
-        ['modeId', Type.Number, true],
+        ['modelId', Type.Number, true],
     ],
 
     getCameraRecords: [
@@ -128,6 +128,10 @@ module.exports = {
 
     removeNotice: [
         ['noticeId', Type.Number, true],
+    ],
+
+    addLike: [
+        ['questionId', Type.Number, true],
     ],
 
     // 访客
