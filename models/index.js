@@ -20,6 +20,7 @@ const tags = require('./tags')(sequelize, Sequelize)
 const users = require('./users')(sequelize, Sequelize)
 const visitorRecord = require('./visitor_record')(sequelize, Sequelize)
 const visitor = require('./visitor')(sequelize, Sequelize)
+const questionLike = require('./question_like')(sequelize, Sequelize)
 
 visitorRecord.hasOne(peoples, { foreignKey: 'id' })
 peoples.hasOne(users, { foreignKey: 'people_id' })
@@ -28,11 +29,14 @@ users.belongsTo(peoples, { foreignKey: 'people_id' })
 peoples.hasMany(cameraRecord, { foreignKey: 'id' })
 cameraRecord.belongsTo(peoples, { foreignKey: 'people_id' })
 
-question.hasMany(answer, { foreignKey: 'id' })
+question.hasMany(answer, { foreignKey: 'question_id' })
 question.belongsTo(peoples, { foreignKey: 'people_id' })
 answer.belongsTo(question, { foreignKey: 'question_id' })
 answer.belongsTo(peoples, { foreignKey: 'people_id' })
 peoples.hasMany(question, { foreignKey: 'id' })
+
+peoples.belongsTo(adress, { foreignKey: 'adress_id' })
+adress.hasMany(peoples, { foreignKey: 'id' })
 
 module.exports = {
     admin,
@@ -54,5 +58,6 @@ module.exports = {
     users,
     visitorRecord,
     visitor,
+    questionLike,
     enums: require('./enum'),
 }

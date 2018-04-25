@@ -2,9 +2,13 @@ const {
     question,
     answer,
     peoples,
+    adress,
+    questionLike,
+    enums,
 } = require('../models')
-
 const { userSvc } = require('../service')
+
+const { QuestionLike } = enums
 
 module.exports = {
     /**
@@ -20,19 +24,15 @@ module.exports = {
      * 获取问题列表
      */
     async getQuestions(req, res) {
-        const { pageNo, pageSize, type, userId } = req.query
-        const { selfId } = req.auth
+        const { pageNo, pageSize, userId } = req.query
+        const { type } = req.auth
         const query = {}
-        if (type) {
-            query.type = type
+        if (userId !== undefined && userSvc.checkResident(type)) {
+            query.people_id = userId
         }
-        if (userId !== undefined && userSvc.checkAdmin(selfId)) {
-            if (userId !== 0) {
-                query.people_id = userId
-            } else query.people_id = { $gt: userId }
-        } else query.people_id = selfId
         const data = {
             datas: [],
+            adress: [],
             pageNo,
             pageSize,
             total: '',
@@ -43,6 +43,31 @@ module.exports = {
             offset: (pageNo - 1) * pageSize,
             limit: pageSize,
         })
+
+        // 获取所有的adress id 并作一个分类
+        const adressIds = []
+        for (const item of data.datas) {
+            const adressId = adressIds.find(result => {
+                return result.id === item.people.adress_id
+            })
+            if (adressId) {
+                adressId.questionIds.push(item.id)
+            } else {
+                adressIds.push({ id: item.people.adress_id, questionIds: [item.id] })
+            }
+        }
+
+        for (const item1 of adressIds) {
+            const adressR = await adress.findById(item1.id, {
+                attributes: ['province', 'city', 'community'],
+            })
+            for (const item2 of item1.questionIds) {
+                data.adress.push({
+                    questionId: item2,
+                    adress: adressR,
+                })
+            }
+        }
         data.total = await question.count({ where: query })
         res.success(data)
     },
@@ -51,9 +76,23 @@ module.exports = {
      * 获取问题详情
      */
     async getQuestion(req, res) {
-        const data = await question.findOne({
-            include: [answer, peoples],
+        const data = {
+            question: {},
+            answers: [],
+            total: 0,
+        }
+        data.question = await question.findOne({
+            include: [peoples],
             where: { id: req.query.questionId },
+        })
+        data.answers = await answer.findAll({
+            include: [peoples],
+            where: { question_id: req.query.questionId },
+            pageNo: 0,
+            pageSize: 10,
+        })
+        data.total = await answer.count({
+            where: { question_id: req.query.questionId },
         })
         res.success(data)
     },
@@ -71,14 +110,48 @@ module.exports = {
     /**
      * 给问题点赞/取消点赞
      */
-    async addLike(req, res) {
+    async addLike(req, res, next) {
+        const { selfId, type } = req.auth
+        const { questionId } = req.body
+        if (!userSvc.checkResident(type)) {
+            return next(new Error('您暂没有点暂的权限'))
+        }
+        const like = await questionLike.findOne({
+            where: { question_id: questionId, people_id: selfId },
+        })
+        const questionData = await question.findById(questionId)
+        let likeType = 0
+        if (like) {
+            // 已点过
+            await like.update({
+                is_like: like.is_like === QuestionLike.Add.value ? QuestionLike.Cancel.value : QuestionLike.Add.value,
+            })
+            await questionData.update({
+                like: like.is_like === QuestionLike.Add.value ? questionData.like + 1 : questionData.like - 1,
+            })
+            likeType = like.is_like === QuestionLike.Add.value ? QuestionLike.Add.value : QuestionLike.Cancel.value
+        } else {
+            await questionLike.create({
+                question_id: questionId,
+                people_id: selfId,
+                is_like: QuestionLike.Add.value,
+            })
+            await questionData.update({
+                like: questionData.like + 1,
+            })
+            likeType = 1
+        }
+        res.success({ likeType })
     },
 
     /**
      * 回答问题
      */
-    async addAnswer(req, res) {
+    async addAnswer(req, res, next) {
         req.body.people_id = req.auth.selfId
+        if (!userSvc.checkResident(req.auth.type)) {
+            return next(new Error('您暂没有回答的权限'))
+        }
         await answer.create(req.body)
         res.success()
     },

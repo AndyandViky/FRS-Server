@@ -40,4 +40,9 @@ module.exports = {
         Avatar: { value: 'static/images/avatar', text: '头像上传' },
         Attachment: { value: 'static/images/attachment', text: '附件图片上传' },
     },
+
+    QuestionLike: {
+        Add: { value: 1, text: '点赞' },
+        Cancel: { value: 0, text: '取消点赞' },
+    },
 }

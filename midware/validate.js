@@ -134,6 +134,22 @@ module.exports = {
         ['questionId', Type.Number, true],
     ],
 
+    // 问答
+    getQuestions: [
+        ['pageNo', Type.Number, true],
+        ['pageSize', Type.Number, true],
+        ['userId', Type.Number, false],
+    ],
+
+    addQuestion: [
+        ['title', Type.String, true],
+    ],
+
+    addAnswer: [
+        ['content', Type.String, true],
+        ['question_id', Type.Number, true],
+    ],
+
     // 访客
     applyVisite: [
         ['belong', Type.Number, true],
@@ -186,9 +202,10 @@ module.exports = {
         ['articleId', Type.Number, true],
     ],
 
-    getResidents: [
+    getUsers: [
         ['pageNo', Type.Number, true],
         ['pageSize', Type.Number, true],
+        ['types', Type.Number, true],
     ],
 
     openCamera: [

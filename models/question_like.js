@@ -1,35 +1,34 @@
 /* jshint indent: 2 */
 
 module.exports = function (sequelize, DataTypes) {
-    return sequelize.define('camera_record', {
+    return sequelize.define('question_like', {
         id: {
             type: DataTypes.INTEGER(11),
             allowNull: false,
             primaryKey: true,
             autoIncrement: true,
         },
+        question_id: {
+            type: DataTypes.INTEGER(11),
+            allowNull: false,
+            references: {
+                model: 'question',
+                key: 'id',
+            },
+        },
         people_id: {
             type: DataTypes.INTEGER(11),
             allowNull: false,
+            references: {
+                model: 'peoples',
+                key: 'id',
+            },
+            unique: true,
         },
-        face_img: {
-            type: DataTypes.STRING(255),
+        is_like: {
+            type: DataTypes.INTEGER(11),
             allowNull: false,
-        },
-        semblance: {
-            type: DataTypes.FLOAT,
-            allowNull: true,
-            defaultValue: '0',
-        },
-        count: {
-            type: DataTypes.INTEGER(11),
-            allowNull: true,
-            defaultValue: '1',
-        },
-        type: {
-            type: DataTypes.INTEGER(11),
-            allowNull: true,
-            defaultValue: '0',
+            defaultValue: 0,
         },
         created_at: {
             type: DataTypes.DATE,
@@ -41,15 +40,8 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false,
             defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
         },
-        deletedAt: {
-            type: DataTypes.DATE,
-            allowNull: true,
-        },
     }, {
-        tableName: 'camera_record',
-        timestamps: true,
-        paranoid: true,
-        updatedAt: 'updated_at',
-        createdAt: false,
+        tableName: 'question_like',
+        timestamps: false,
     })
 }

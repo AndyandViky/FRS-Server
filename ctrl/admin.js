@@ -1,4 +1,4 @@
-const { users, enums, notice, peoples, cameraConfig } = require('../models')
+const { users, admin, adress, enums, notice, peoples, cameraConfig } = require('../models')
 const { faceSvc } = require('../service')
 
 const { DataStatus, UserRank } = enums
@@ -25,24 +25,46 @@ module.exports = {
     /**
      * 获取业主列表
      */
-    async getResidents(req, res) {
-        const { pageNo, pageSize } = req.query
-        const query = { types: UserRank.Resident.value }
+    async getUsers(req, res) {
+        const { pageNo, pageSize, types } = req.query
+        const query = { types }
         const data = {
             datas: [],
             pageNo,
             pageSize,
             total: '',
         }
-        data.datas = await peoples.findAll({
-            include: [users],
-            where: query,
-            offset: (pageNo - 1) * pageSize,
-            limit: pageSize,
-            order: [
-                ['created_at', 'desc'],
-            ],
-        })
+        if (types === UserRank.Admin.value) {
+            data.datas = await peoples.findAll({
+                include: [admin, adress],
+                where: query,
+                offset: (pageNo - 1) * pageSize,
+                limit: pageSize,
+                order: [
+                    ['created_at', 'desc'],
+                ],
+            })
+        } else if (types === UserRank.Resident.value) {
+            data.datas = await peoples.findAll({
+                include: [users, adress],
+                where: query,
+                offset: (pageNo - 1) * pageSize,
+                limit: pageSize,
+                order: [
+                    ['created_at', 'desc'],
+                ],
+            })
+        } else {
+            data.datas = await peoples.findAll({
+                include: [adress],
+                where: query,
+                offset: (pageNo - 1) * pageSize,
+                limit: pageSize,
+                order: [
+                    ['created_at', 'desc'],
+                ],
+            })
+        }
         data.total = await peoples.count({ where: query })
         res.success(data)
     },

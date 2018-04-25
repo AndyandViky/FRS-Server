@@ -37,7 +37,7 @@ register('get', '/article', article.getArticle)
 register('post', '/question', question.addQuestion)
 register('delete', '/question', question.deleteQuestion)
 register('post', '/answer', question.addAnswer)
-register('put', '/like', question.addLike)
+register('post', '/like', question.addLike)
 
 /**
  * 通知相关

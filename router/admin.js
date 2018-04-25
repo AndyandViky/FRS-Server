@@ -6,6 +6,7 @@ const {
     bug,
     article,
     question,
+    user,
 } = require('../ctrl')
 
 const router = express.Router()
@@ -15,10 +16,16 @@ const router = express.Router()
  */
 // 通过业主申请
 register('put', '/resident', admin.approveResident)
-register('get', '/residents', admin.getResidents)
+register('get', '/users', admin.getUsers)
+register('get', '/user', user.getUserInfo)
+
+/**
+ * 摄像头
+ */
 register('post', '/open/camera', admin.openCamera)
 register('post', '/close/camera', admin.closeCamera)
 register('get', '/cameras', admin.getCameras)
+register('get', '/camera/records', user.getCameraRecords)
 
 /**
  * 故障
@@ -43,6 +50,8 @@ register('get', '/article', article.getArticle)
 register('post', '/question', question.addQuestion)
 register('delete', '/question', question.deleteQuestion)
 register('post', '/answer', question.addAnswer)
+register('get', '/questions', question.getQuestions)
+register('get', '/question', question.getQuestion)
 
 /**
  * 通知相关

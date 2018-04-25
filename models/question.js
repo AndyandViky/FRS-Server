@@ -20,10 +20,6 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.STRING(70),
             allowNull: false,
         },
-        content: {
-            type: DataTypes.TEXT,
-            allowNull: false,
-        },
         like: {
             type: DataTypes.INTEGER(11),
             allowNull: true,
