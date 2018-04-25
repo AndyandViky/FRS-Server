@@ -12,12 +12,12 @@ module.exports = {
      */
     async getNoticeList(req, res) {
         const { pageNo, pageSize, status, userId } = req.query
-        const { selfId } = req.auth
+        const { selfId, type } = req.auth
         const query = { people_id: selfId }
         if (status) {
             query.status = status
         }
-        if (userId && userSvc.checkAdmin(selfId)) query.people_id = userId
+        if (userId && userSvc.checkAdmin(type)) query.people_id = userId
         const data = {
             datas: [],
             pageNo,

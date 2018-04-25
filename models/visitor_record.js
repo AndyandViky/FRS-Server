@@ -25,7 +25,7 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false,
         },
         pass_time: {
-            type: DataTypes.INTEGER(11),
+            type: DataTypes.STRING(30),
             allowNull: false,
         },
         reason: {

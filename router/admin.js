@@ -18,6 +18,11 @@ const router = express.Router()
 register('put', '/resident', admin.approveResident)
 register('get', '/users', admin.getUsers)
 register('get', '/user', user.getUserInfo)
+register('put', '/user', user.changeUserInfo)
+register('delete', '/user', admin.deleteUser)
+register('delete', '/user', admin.deleteUser)
+register('get', '/visitors', user.getVisitors)
+register('put', '/visite/time', user.addVisiteTime)
 
 /**
  * 摄像头

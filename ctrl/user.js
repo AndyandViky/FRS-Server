@@ -126,8 +126,15 @@ module.exports = {
      * 修改用户信息
      */
     async changeUserInfo(req, res) {
+        const { userId } = req.body
+        const query = {}
+        if (userId && userSvc.checkAdmin(req.auth.type)) {
+            query.id = userId
+        } else {
+            query.id = req.auth.selfId
+        }
         await peoples.update(req.body, {
-            where: { id: req.auth.selfId },
+            where: query,
         })
         res.success()
     },
@@ -276,7 +283,7 @@ module.exports = {
         if (type) {
             query.type = type
         }
-        if (userId !== undefined && userSvc.checkAdmin(selfId)) {
+        if (userId !== undefined && userSvc.checkAdmin(req.auth.type)) {
             if (userId !== 0) {
                 query.people_id = userId
             } else query.people_id = { $gt: userId }
@@ -302,12 +309,12 @@ module.exports = {
      */
     async getVisitors(req, res) {
         const { pageNo, pageSize, status, userId } = req.query
-        const { selfId } = req.auth
+        const { selfId, type } = req.auth
         const query = { belong: selfId }
         if (status) {
             query.status = status
         }
-        if (userId && userSvc.checkAdmin(selfId)) query.belong = userId
+        if (userId && userSvc.checkAdmin(type)) query.belong = userId
         const data = {
             datas: [],
             pageNo,
@@ -322,6 +329,20 @@ module.exports = {
         })
         data.total = await visitorRecord.count({ where: query })
         res.success(data)
+    },
+
+    /**
+     * 给访客延期
+     */
+    async addVisiteTime(req, res) {
+        const { recordId, deadline } = req.body
+        await visitorRecord.update({
+            deadline,
+            pass_time: Date.now().toString(),
+        }, {
+            where: { id: recordId },
+        })
+        res.success()
     },
 
     /**

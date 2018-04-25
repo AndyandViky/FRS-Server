@@ -87,6 +87,12 @@ module.exports = {
         ['userId', Type.Number, false],
     ],
 
+    addVisiteTime: [
+        ['recordId', Type.Number, true],
+        ['deadline', Type.Number, true],
+    ],
+
+    // ---------------------------------
     openDoor: [
         ['selfPwd', Type.Number, true],
     ],
@@ -160,6 +166,11 @@ module.exports = {
 
     // 管理员
     approveResident: [
+        ['userId', Type.Number, true],
+    ],
+
+    deleteUser: [
+        ['type', Type.Number, true],
         ['userId', Type.Number, true],
     ],
 

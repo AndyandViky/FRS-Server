@@ -1,4 +1,4 @@
-const { users, admin, adress, enums, notice, peoples, cameraConfig } = require('../models')
+const { users, admin, adress, enums, notice, peoples, cameraConfig, property, visitor } = require('../models')
 const { faceSvc } = require('../service')
 
 const { DataStatus, UserRank } = enums
@@ -43,6 +43,7 @@ module.exports = {
                 order: [
                     ['created_at', 'desc'],
                 ],
+                attributes: ['age', 'avatar', 'email', 'gender', 'house_number', 'id', 'is_active', 'name', 'phone', 'types'],
             })
         } else if (types === UserRank.Resident.value) {
             data.datas = await peoples.findAll({
@@ -53,6 +54,7 @@ module.exports = {
                 order: [
                     ['created_at', 'desc'],
                 ],
+                attributes: ['age', 'avatar', 'email', 'gender', 'house_number', 'id', 'is_active', 'name', 'phone', 'types'],
             })
         } else {
             data.datas = await peoples.findAll({
@@ -63,10 +65,35 @@ module.exports = {
                 order: [
                     ['created_at', 'desc'],
                 ],
+                attributes: ['age', 'avatar', 'email', 'gender', 'house_number', 'id', 'is_active', 'name', 'phone', 'types'],
             })
         }
         data.total = await peoples.count({ where: query })
         res.success(data)
+    },
+
+    /**
+     * 删除用户
+     */
+    async deleteUser(req, res) {
+        const { type, userId } = req.body
+        if (type === UserRank.Resident.value) {
+            await users.delete({
+                where: { people_id: userId },
+            })
+        } else if (type === UserRank.Visitor.value) {
+            await visitor.delete({
+                where: { people_id: userId },
+            })
+        } else if (type === UserRank.Property.value) {
+            await property.delete({
+                where: { people_id: userId },
+            })
+        }
+        await peoples.delete({
+            where: { id: userId },
+        })
+        res.success()
     },
 
     /**
