@@ -98,6 +98,17 @@ module.exports = {
     },
 
     /**
+     * 获取问题详情
+     */
+    async changeQuestionInfo(req, res) {
+        await question.update(req.body, {
+            where: { id: req.body.questionId },
+        })
+        res.success()
+    },
+
+
+    /**
      * 删除问题
      */
     async deleteQuestion(req, res) {

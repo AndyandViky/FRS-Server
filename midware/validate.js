@@ -136,10 +136,6 @@ module.exports = {
         ['noticeId', Type.Number, true],
     ],
 
-    addLike: [
-        ['questionId', Type.Number, true],
-    ],
-
     // 问答
     getQuestions: [
         ['pageNo', Type.Number, true],
@@ -154,6 +150,24 @@ module.exports = {
     addAnswer: [
         ['content', Type.String, true],
         ['question_id', Type.Number, true],
+    ],
+
+    getQuestion: [
+        ['questionId', Type.Number, true],
+    ],
+
+    changeQuestionInfo: [
+        ['questionId', Type.Number, true],
+        ['title', Type.Number, true],
+        ['like', Type.Number, true],
+    ],
+
+    deleteQuestion: [
+        ['questionId', Type.Number, true],
+    ],
+
+    addLike: [
+        ['questionId', Type.Number, true],
     ],
 
     // 访客
@@ -202,6 +216,7 @@ module.exports = {
     ],
 
     changeArticle: [
+        ['articleId', Type.Number, true],
         ['title', Type.String, true],
         ['content', Type.String, true],
         ['status', Type.Number, true],

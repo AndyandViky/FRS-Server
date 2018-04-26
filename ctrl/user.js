@@ -176,9 +176,14 @@ module.exports = {
      * 获取用户人脸模型
      */
     async getUserFaceModel(req, res) {
+        const { userId } = req.query
+        let id
+        if (userId && userSvc.checkAdmin(req.auth.type)) {
+            id = userId
+        } else id = req.auth.selfId
         const data = await faceData.findAll({
-            where: { people_id: req.auth.selfId, type: FaceModel.First.value },
-            attributes: ['id', 'model_image', 'is_active'],
+            where: { people_id: id, type: FaceModel.First.value },
+            attributes: ['id', 'model_image', 'is_active', 'people_id'],
         })
         res.success(data)
     },
@@ -247,10 +252,14 @@ module.exports = {
      * 激活人脸模型
      */
     async activeModel(req, res) {
-        const { modelId } = req.body
+        const { modelId, userId } = req.body
+        let id
+        if (userId && userSvc.checkAdmin(req.auth.type)) {
+            id = userId
+        } else id = req.auth.selfId
         if (modelId !== 0) {
             const data = await faceData.findOne({
-                where: { people_id: req.auth.selfId, is_active: DataStatus.Actived.value },
+                where: { people_id: id, is_active: DataStatus.Actived.value },
             })
             if (data) {
                 await data.update({
@@ -266,7 +275,7 @@ module.exports = {
             await faceData.update({
                 is_active: DataStatus.NotActived.value,
             }, {
-                where: { people_id: req.auth.selfId, type: FaceModel.First.value },
+                where: { people_id: id, type: FaceModel.First.value },
             })
         }
         res.success()

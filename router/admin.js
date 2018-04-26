@@ -21,6 +21,8 @@ register('get', '/user', user.getUserInfo)
 register('put', '/user', user.changeUserInfo)
 register('delete', '/user', admin.deleteUser)
 register('delete', '/user', admin.deleteUser)
+register('get', '/face', user.getUserFaceModel)
+register('put', '/face/active', user.activeModel)
 register('get', '/visitors', user.getVisitors)
 register('put', '/visite/time', user.addVisiteTime)
 
@@ -57,6 +59,7 @@ register('delete', '/question', question.deleteQuestion)
 register('post', '/answer', question.addAnswer)
 register('get', '/questions', question.getQuestions)
 register('get', '/question', question.getQuestion)
+register('put', '/question', question.changeQuestionInfo)
 
 /**
  * 通知相关
