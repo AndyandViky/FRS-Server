@@ -35,8 +35,17 @@ module.exports = {
      * 获取故障列表
      */
     async getBugs(req, res) {
-        const { pageNo, pageSize, userId } = req.query
+        const { pageNo, pageSize, userId, search } = req.query
         const query = {}
+        if (search) {
+            const searchData = JSON.parse(search)
+            if (searchData.searchName !== '') {
+                query.title = { $like: `%${searchData.searchName}%` }
+            }
+            if (searchData.dateFilter[0] !== '' && searchData.dateFilter[1] !== '') {
+                query.created_at = { $between: searchData.dateFilter }
+            }
+        }
         if (userId) query.people_id = userId
         const data = {
             datas: [],
@@ -57,7 +66,7 @@ module.exports = {
      * 获取故障详情
      */
     async getBug(req, res) {
-        const data = await bug.findById(req.query.id)
+        const data = await bug.findById(req.query.bugId)
         res.success(data)
     },
 
@@ -86,7 +95,7 @@ module.exports = {
      * 删除故障信息
      */
     async deleteBug(req, res) {
-        await bug.delete({
+        await bug.destroy({
             where: { id: req.body.bugId },
         })
         res.success()

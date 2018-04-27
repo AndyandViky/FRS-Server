@@ -12,6 +12,11 @@ const {
 const router = express.Router()
 
 /**
+ * 首页数据获取
+ */
+register('get', '/', admin.getIndexData)
+
+/**
  * 管理员相关
  */
 // 通过业主申请
@@ -60,6 +65,8 @@ register('post', '/answer', question.addAnswer)
 register('get', '/questions', question.getQuestions)
 register('get', '/question', question.getQuestion)
 register('put', '/question', question.changeQuestionInfo)
+register('put', '/answer', question.changeAnswer)
+register('delete', '/answer', question.deleteAnswer)
 
 /**
  * 通知相关

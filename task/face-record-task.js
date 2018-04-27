@@ -12,8 +12,8 @@ const { DataStatus, UserRank } = enums
 
 schedule.scheduleJob('* * */2 * * *', async () => {
     const interval = 1000 * 60 * 10 // 内部循环为十分钟一次
-    const limit = Date.now() - (3600 * 1000 * 2) // 2小时之内的数据
-    const now = Date.now() // 开始外部定时器的时间
+    const limit = new Date(Date.now() - (3600 * 1000 * 2)) // 2小时之内的数据
+    const now = new Date() // 开始外部定时器的时间
     const datas = await peoples.findAll({
         where: { is_active: DataStatus.Actived.value },
         attributes: ['id', 'adress_id'],
@@ -32,16 +32,13 @@ schedule.scheduleJob('* * */2 * * *', async () => {
     let count = 0
     const timer = setInterval(async () => {
         const records = await cameraRecord.findAll({
-            where: { people_id: { $in: result[count].peopleIds } },
-            attributes: ['type', 'created_at'],
+            where: { people_id: { $in: result[count].peopleIds }, created_at: { $between: [limit, now] } },
+            attributes: ['type'],
         })
         if (records.length > 0) {
             let cameraType = 0
             records.map((item) => {
-                const create = Date.parse(item.created_at) + (3600 * 1000 * 8)
-                if (create > now - limit) {
-                    if (item.type === 0)cameraType++
-                }
+                if (item.type === 0)cameraType++
             })
             const rate = (cameraType / records.length).toFixed(2)
             if (rate < 0.65) {

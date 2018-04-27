@@ -48,7 +48,7 @@ module.exports = {
      * 删除文章
      */
     async deleteArticle(req, res) {
-        await article.delete({
+        await article.destroy({
             where: { id: req.body.articleId },
         })
         res.success()

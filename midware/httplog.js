@@ -26,6 +26,7 @@ module.exports = (req, res, next) => {
     }
 
     res.on('finish', function () {
+        config.SERVERCOUNT++ // 服务调用量+1
         const duration = new Date() - this.start
         logger.info(`[${this.reqId}] Done  `, this.statusCode, `(${duration}ms)\n`)
     })

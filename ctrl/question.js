@@ -24,9 +24,18 @@ module.exports = {
      * 获取问题列表
      */
     async getQuestions(req, res) {
-        const { pageNo, pageSize, userId } = req.query
+        const { pageNo, pageSize, userId, search } = req.query
         const { type } = req.auth
         const query = {}
+        if (search) {
+            const searchData = JSON.parse(search)
+            if (searchData.searchName !== '') {
+                query.title = { $like: `%${searchData.searchName}%` }
+            }
+            if (searchData.dateFilter[0] !== '' && searchData.dateFilter[1] !== '') {
+                query.created_at = { $between: searchData.dateFilter }
+            }
+        }
         if (userId !== undefined && userSvc.checkResident(type)) {
             query.people_id = userId
         }
@@ -98,7 +107,7 @@ module.exports = {
     },
 
     /**
-     * 获取问题详情
+     * 修改问题内容
      */
     async changeQuestionInfo(req, res) {
         await question.update(req.body, {
@@ -112,8 +121,8 @@ module.exports = {
      * 删除问题
      */
     async deleteQuestion(req, res) {
-        await question.delete({
-            where: { id: req.query.questionId },
+        await question.destroy({
+            where: { id: req.body.questionId },
         })
         res.success()
     },
@@ -164,6 +173,26 @@ module.exports = {
             return next(new Error('您暂没有回答的权限'))
         }
         await answer.create(req.body)
+        res.success()
+    },
+
+    /**
+     * 修改回答内容
+     */
+    async changeAnswer(req, res) {
+        await answer.update(req.body, {
+            where: { id: req.body.answerId },
+        })
+        res.success()
+    },
+
+    /**
+     * 删除回答
+     */
+    async deleteAnswer(req, res) {
+        await answer.destroy({
+            where: { id: req.body.answerId },
+        })
         res.success()
     },
 }

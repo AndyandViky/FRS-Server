@@ -26,6 +26,11 @@ const config = {
         HTTP: '8000',
     },
 
+    // 全局静态数据
+    SERVERCOUNT: 0,
+    DATACATCHCOUNT: 1024123,
+    BROWSERCOUNT: 1024123,
+
     // Paths
     QRCODE_FOLDER: './static/qrcode/',
 

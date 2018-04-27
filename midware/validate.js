@@ -158,12 +158,21 @@ module.exports = {
 
     changeQuestionInfo: [
         ['questionId', Type.Number, true],
-        ['title', Type.Number, true],
+        ['title', Type.String, true],
         ['like', Type.Number, true],
+    ],
+
+    changeAnswer: [
+        ['answerId', Type.Number, true],
+        ['content', Type.String, true],
     ],
 
     deleteQuestion: [
         ['questionId', Type.Number, true],
+    ],
+
+    deleteAnswer: [
+        ['answerId', Type.Number, true],
     ],
 
     addLike: [
