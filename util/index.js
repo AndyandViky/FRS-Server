@@ -9,4 +9,5 @@ module.exports = {
     xml: require('./xml'),
     sequelize: require('./sequelize'),
     faceRequest: require('./faceRequest'),
+    cache: require('./cache'),
 }

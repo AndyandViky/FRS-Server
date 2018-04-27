@@ -9,6 +9,7 @@ const Type = {
     Hash: { name: 'Hash', func: 'isHash' },
     Phone: { name: 'Phone', func: 'isPhone' },
     IdCardNO: { name: 'IdCardNO', func: 'isIdCardNO' },
+    Email: { name: 'Email', func: 'isEmail' },
     ObjectId: { name: 'ObjectId', func: 'isMongoId' },
     Stamp: { name: 'Stamp', func: 'isStamp' },
     UnixStamp: { name: 'UnixStamp', func: 'isUnixStamp' },
@@ -18,8 +19,7 @@ const Type = {
 module.exports = {
 
     login: [
-        ['email', Type.String, false],
-        ['phone', Type.Phone, false],
+        ['username', Type.String, true],
         ['password', Type.String, true],
     ],
 
@@ -33,6 +33,10 @@ module.exports = {
         ['gender', Type.Number, true],
         ['house_number', Type.Number, true],
         ['adress_id', Type.Number, true],
+    ],
+
+    sendRegisterEmail: [
+        ['email', Type.Email, true],
     ],
 
     changeUserInfo: [

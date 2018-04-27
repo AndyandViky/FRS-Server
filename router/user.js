@@ -23,6 +23,7 @@ register('put', '/face/active', user.activeModel)
 register('get', '/camera/records', user.getCameraRecords)
 register('post', '/avatar', user.uploadAvatar)
 register('put', '/password', user.updatePwd)
+register('post', '/send/email', user.sendRegisterEmail)
 
 /**
  * 问答

@@ -9,11 +9,12 @@ const {
     cameraRecord,
     config,
 } = require('../models')
-const { common } = require('../util')
+const { common, cache } = require('../util')
 const multiparty = require('multiparty')
 const sequelize = require('sequelize')
 const { emailSvc, jwtSvc, userSvc, faceSvc } = require('../service')
 const gm = require('gm')
+const { isPhone, isEmail } = require('../util').customValidators
 
 const { DataStatus, FaceModel, UploadPath, UserRank } = enums
 /**
@@ -24,20 +25,20 @@ module.exports = {
      * 用户登录
      */
     async login(req, res, next) {
-        const { email, password, phone } = req.body
-        if (!email && !phone) return next(new Error('邮箱或手机号不能为空'))
+        const { username, password } = req.body
         const pwd = common.encryptInfo(password)
         let user = {}
-        if (email) {
-            user = await peoples.findOne({
-                where: { email, is_active: DataStatus.Actived.value, password: pwd },
-            })
-        } else {
-            user = await peoples.findOne({
-                where: { phone, is_active: DataStatus.Actived.value, password: pwd },
-                attributes: ['id', 'name', 'gender', 'age', 'email', 'phone', 'avatar', 'types'],
-            })
+        const query = {
+            is_active: DataStatus.Actived.value,
+            password: pwd,
         }
+        if (isPhone(username)) query.phone = username
+        else if (isEmail(username)) query.email = username
+        else return next(new Error('用户名格式不正确'))
+        user = await peoples.findOne({
+            where: query,
+            attributes: ['id', 'name', 'gender', 'age', 'email', 'phone', 'avatar', 'types'],
+        })
         if (user) {
             let isVerify = 1
             if (user.types === UserRank.Resident.value) {
@@ -48,10 +49,10 @@ module.exports = {
                 isVerify = resident.is_verify
             }
             // 返回 token
-            const jwt = await jwtSvc.sign({ selfId: user.id, type: user.types })
+            const token = await jwtSvc.sign({ selfId: user.id, type: user.types })
             return res.success({
                 user,
-                jwt,
+                token,
                 isVerify,
             })
         } return next(new Error('用户不存在'))
@@ -61,25 +62,38 @@ module.exports = {
      * 用户注册
      */
     async register(req, res, next) {
-        const { password, confirmPwd, email } = req.body
-        if (password !== confirmPwd) return next(new Error('两次密码输入不一致'))
-        req.body.password = common.encryptInfo(password)
-        await sequelize.transaction((t) => {
-            // 在这里链接您的所有查询。 确保你返回他们。
-            return peoples.create(req.body, { transaction: t }).then((user) => {
-                emailSvc.sendEmail(email, '注册成功提醒', `<p>注册成功</p><br/><p>点击以下链接进行激活</p><br/><a href="http://localhost8000/user/activate/"${req.headers.authorization}>http://localhost8000/user/activate/${req.headers.authorization}</a>`)
-                if (user.type === UserRank.Visitor.value) {
-                    return visitor.create({
-                        people_id: user.id,
-                    }, { transaction: t })
-                } else if (user.type === UserRank.Resident.value) {
-                    return users.create({
-                        people_id: user.id,
-                        self_password: common.encryptInfo('123456'),
-                    }, { transaction: t })
-                } throw new Error()
+        const { password, confirmPwd, email, vCode } = req.body
+        cache.get(email, (async code => {
+            if (code !== vCode) return next(new Error('验证码不正确'))
+            if (password !== confirmPwd) return next(new Error('两次密码输入不一致'))
+            req.body.password = common.encryptInfo(password)
+            await sequelize.transaction((t) => {
+                // 在这里链接您的所有查询。 确保你返回他们。
+                return peoples.create(req.body, { transaction: t }).then((user) => {
+                    if (user.type === UserRank.Visitor.value) {
+                        return visitor.create({
+                            people_id: user.id,
+                        }, { transaction: t })
+                    } else if (user.type === UserRank.Resident.value) {
+                        return users.create({
+                            people_id: user.id,
+                            self_password: common.encryptInfo('123456'),
+                        }, { transaction: t })
+                    } throw new Error()
+                })
             })
-        })
+            res.success()
+        }))
+    },
+
+    /**
+     * 注册发送邮件验证码
+     */
+    async sendRegisterEmail(req, res) {
+        const { email } = req.body
+        const random = common.randomString(6)
+        emailSvc.sendEmail(email, '注册通知', `邮箱验证码为: ${random}`)
+        cache.set(email, random, 180)
         res.success()
     },
 

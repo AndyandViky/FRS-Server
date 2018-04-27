@@ -32,6 +32,10 @@ module.exports = {
         return true
     },
 
+    isEmail(value) {
+        return /^([0-9A-Za-z\-_\.]+)@([0-9a-z]+\.[a-z]{2,3}(\.[a-z]{2})?)$/.test(value)
+    },
+
     isIdCardNO(value) {
         return /^[1-9]{1}[0-9]{14}$|^[1-9]{1}[0-9]{16}([0-9]|[xX])$/.test(value)
     },

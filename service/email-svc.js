@@ -14,12 +14,12 @@ smtpTransport = nodemailer.createTransport(smtpTransport({
 }))
 const sendMail = promisify(smtpTransport.sendMail).bind(smtpTransport)
 module.exports = {
-    async sendEmail(recipient, subject, html) {
+    async sendEmail(recipient, subject, text) {
         await sendMail({
             from: config.EMAIL.USER,
             to: recipient,
             subject,
-            html,
+            text,
         })
     },
 }

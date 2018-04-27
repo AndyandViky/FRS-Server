@@ -25,7 +25,6 @@ module.exports = {
      */
     async getQuestions(req, res) {
         const { pageNo, pageSize, userId, search } = req.query
-        const { type } = req.auth
         const query = {}
         if (search) {
             const searchData = JSON.parse(search)
@@ -36,7 +35,7 @@ module.exports = {
                 query.created_at = { $between: searchData.dateFilter }
             }
         }
-        if (userId !== undefined && userSvc.checkResident(type)) {
+        if (req.auth && userId !== undefined && userSvc.checkResident(req.auth.type)) {
             query.people_id = userId
         }
         const data = {
