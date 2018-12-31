@@ -35,9 +35,6 @@ const config = {
     DATACATCHCOUNT: 1024123,
     BROWSERCOUNT: 1024123,
 
-    // Paths
-    QRCODE_FOLDER: './static/qrcode/',
-
     EMAIL: {
         SERVICE: '1026530721',
         USER: '1026530721@qq.com',

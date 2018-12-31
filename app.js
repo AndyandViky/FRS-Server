@@ -13,10 +13,6 @@ const { customValidators } = require('./util')
 const app = express()
 const { cors, auth, queryParser, httplog, userAuth } = require('./midware')
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'))
-app.set('view engine', 'ejs')
-
 // uncomment after placing your favicon in /static
 app.use(expressValidator({ customValidators }))
 app.use(logger('dev'))
@@ -44,9 +40,5 @@ app.use((req, res, next) => {
 app.use(({ code = -1, message, stack }, req, res, next) => { // eslint-disable-line 
     res.fail(code, message)
 })
-
-// some init actions
-rm('-rf', config.QRCODE_FOLDER) // eslint-disable-line 
-fs.mkdirSync(config.QRCODE_FOLDER)
 
 app.listen(config.PORT.HTTP)
