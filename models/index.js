@@ -26,6 +26,9 @@ visitorRecord.hasOne(peoples, { foreignKey: 'id' })
 peoples.hasOne(users, { foreignKey: 'people_id' })
 users.belongsTo(peoples, { foreignKey: 'people_id' })
 
+peoples.hasOne(admin, { foreignKey: 'people_id' })
+admin.belongsTo(peoples, { foreignKey: 'people_id' })
+
 peoples.hasMany(cameraRecord, { foreignKey: 'id' })
 cameraRecord.belongsTo(peoples, { foreignKey: 'people_id' })
 

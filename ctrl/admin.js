@@ -106,6 +106,7 @@ module.exports = {
             pageSize,
             total: '',
         }
+        const attribute = ['age', 'avatar', 'email', 'gender', 'house_number', 'id', 'is_active', 'name', 'phone', 'types']
         if (types === UserRank.Admin.value) {
             data.datas = await peoples.findAll({
                 include: [admin, adress],
@@ -115,7 +116,7 @@ module.exports = {
                 order: [
                     ['created_at', 'desc'],
                 ],
-                attributes: ['age', 'avatar', 'email', 'gender', 'house_number', 'id', 'is_active', 'name', 'phone', 'types'],
+                attributes: attribute,
             })
         } else if (types === UserRank.Resident.value) {
             data.datas = await peoples.findAll({
@@ -126,7 +127,7 @@ module.exports = {
                 order: [
                     ['created_at', 'desc'],
                 ],
-                attributes: ['age', 'avatar', 'email', 'gender', 'house_number', 'id', 'is_active', 'name', 'phone', 'types'],
+                attributes: attribute,
             })
         } else {
             data.datas = await peoples.findAll({
@@ -137,7 +138,7 @@ module.exports = {
                 order: [
                     ['created_at', 'desc'],
                 ],
-                attributes: ['age', 'avatar', 'email', 'gender', 'house_number', 'id', 'is_active', 'name', 'phone', 'types'],
+                attributes: attribute,
             })
         }
         data.total = await peoples.count({ where: query })
