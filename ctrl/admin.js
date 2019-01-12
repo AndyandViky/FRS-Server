@@ -3,7 +3,11 @@ const { faceSvc } = require('../service')
 const config = require('../config')
 
 const { DataStatus, UserRank, DoorStatus } = enums
+function sum(a, b) {
+    return a + b
+}
 module.exports = {
+    sum,
     /**
      * 获取首页数据
      */

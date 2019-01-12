@@ -1,5 +1,5 @@
 module.exports = {
-    test: require('./test'),
+    test: require('./authTest'),
     notice: require('./notice'),
     user: require('./user'),
     attachment: require('./attachment'),
