@@ -60,4 +60,3 @@ schedule.scheduleJob('* * */2 * * *', async () => {
         if (count === result.length) clearInterval(timer)
     }, interval)
 })
-

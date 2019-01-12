@@ -1,6 +1,20 @@
-const admins = require('../ctrl/admin')
+const request = require('supertest')
+require('should')
+const app = require('../app')
+const getJwt = require('./utils-test')
 
-test('adds 1 + 2 to equal 3', () => {
-    // expect.assertions(1) // 它能确保在异步的测试用例中，有一个断言会在回调函数中被执行
-    expect(1 + 2).toBe(3)
+let token
+let server
+before(async () => {
+    token = await getJwt(595)
+    token = `Bearer ${token}`
+    server = app.listen(8000)
+})
+describe('test web admin', () => {
+    it('#test GET /admin', async () => {
+        const res = await request(server)
+            .get('/admin')
+            .set('authorization', token)
+        res.body.code.should.be.eql(1)
+    })
 })

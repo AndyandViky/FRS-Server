@@ -1,3 +1,7 @@
+const gm = require('gm')
+const multiparty = require('multiparty')
+const sequelize = require('sequelize')
+
 const {
     peoples,
     users,
@@ -10,10 +14,7 @@ const {
     config,
 } = require('../models')
 const { common, cache } = require('../util')
-const multiparty = require('multiparty')
-const sequelize = require('sequelize')
 const { emailSvc, jwtSvc, userSvc, faceSvc } = require('../service')
-const gm = require('gm')
 const { isPhone, isEmail } = require('../util').customValidators
 
 const { DataStatus, FaceModel, UploadPath, UserRank } = enums
@@ -74,7 +75,7 @@ module.exports = {
                         return visitor.create({
                             people_id: user.id,
                         }, { transaction: t })
-                    } else if (user.type === UserRank.Resident.value) {
+                    } if (user.type === UserRank.Resident.value) {
                         return users.create({
                             people_id: user.id,
                             self_password: common.encryptInfo('123456'),

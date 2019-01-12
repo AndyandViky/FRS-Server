@@ -1,13 +1,11 @@
 global._ = require('underscore')
 require('shelljs/global')
 const express = require('express')
-const fs = require('fs')
 const path = require('path')
 const logger = require('morgan')
 const bodyParser = require('body-parser')
-const config = require('./config')
-const { admin, user, resident, visitor } = require('./router')
 const expressValidator = require('express-validator')
+const { admin, user, resident, visitor } = require('./router')
 const { customValidators } = require('./util')
 
 const app = express()
@@ -41,4 +39,4 @@ app.use(({ code = -1, message, stack }, req, res, next) => { // eslint-disable-l
     res.fail(code, message)
 })
 
-app.listen(config.PORT.HTTP)
+module.exports = app
