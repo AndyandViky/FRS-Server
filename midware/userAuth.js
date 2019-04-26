@@ -15,10 +15,10 @@ module.exports = async (req, res, next) => {
     }
     const types = req.baseUrl.substring(1)
     const type = typeBox[types]
-    const count = await peoples.count({
-        where: { id: req.auth.selfId, types: type },
+    const user = await peoples.findById(req.auth.selfId, {
+        attributes: ['types'],
     })
-    if (count === 0) {
+    if (user.types < type) {
         return next(new Error('您没有访问权限'))
     }
     next()
