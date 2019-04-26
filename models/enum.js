@@ -34,6 +34,13 @@ module.exports = {
         Threed: { value: 2, text: '随规则替换类型' },
     },
 
+    // 访客状态
+    VisitorStatus: {
+        Untreated: { value: 0, text: '未处理' },
+        Pass: { value: 1, text: '通过' },
+        Invalid: { value: 2, text: '失效' },
+    },
+
     // 上传文件链接
     UploadPath: {
         Face: { value: 'static/images/face', text: '人脸图片上传' },

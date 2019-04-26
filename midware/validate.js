@@ -187,7 +187,6 @@ module.exports = {
     applyVisite: [
         ['belong', Type.Number, true],
         ['deadline', Type.Number, true],
-        ['pass_time', Type.Number, true],
         ['reason', Type.String, true],
     ],
 

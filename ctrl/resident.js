@@ -10,9 +10,9 @@ const {
     config,
 } = require('../models')
 const { common } = require('../util')
-const { faceSvc } = require('../service')
+const { faceSvc, emailSvc } = require('../service')
 
-const { DataStatus, UserRank, DoorStatus } = enums
+const { DataStatus, UserRank, DoorStatus, VisitorStatus } = enums
 
 module.exports = {
     /**
@@ -26,7 +26,21 @@ module.exports = {
             },
         }, {
             pass_time: Date.now(),
+            status: VisitorStatus.Pass.value,
         })
+        // 启用访客的人像图
+        const face = await faceData.findOne({
+            where: {
+                people_id: visitorId,
+            },
+        })
+        face.is_active = DataStatus.Actived.value
+        await face.save()
+        // 发送通知，此处由于输入的为手机号，所以会发生错误
+        const visitor = await peoples.findById(visitorId, {
+            attributes: ['email'],
+        })
+        emailSvc.sendEmail(visitor.email, '访问通过通知', '尊敬的用户你好，您申请的访问已被通过！')
         res.success()
     },
 
