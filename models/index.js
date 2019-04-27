@@ -22,7 +22,8 @@ const visitorRecord = require('./visitor_record')(sequelize, Sequelize)
 const visitor = require('./visitor')(sequelize, Sequelize)
 const questionLike = require('./question_like')(sequelize, Sequelize)
 
-visitorRecord.hasOne(peoples, { foreignKey: 'id' })
+visitorRecord.belongsTo(peoples, { foreignKey: 'visitor_id' })
+
 peoples.hasOne(users, { foreignKey: 'people_id' })
 users.belongsTo(peoples, { foreignKey: 'people_id' })
 

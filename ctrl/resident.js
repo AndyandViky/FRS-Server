@@ -148,4 +148,31 @@ module.exports = {
         ])
         res.success()
     },
+
+    /**
+     * App获取门禁记录
+     * @param {*} req
+     * @param {*} res
+     */
+    async getCameraRecordsById(req, res) {
+        const { pageNo, pageSize } = req.query
+        const { selfId } = req.auth
+        const query = {
+            people_id: selfId,
+        }
+        const data = {
+            datas: [],
+            pageNo,
+            pageSize,
+            total: '',
+        }
+        data.datas = await cameraRecord.findAll({
+            where: query,
+            attributes: ['count', 'type', 'created_at'],
+            offset: (pageNo - 1) * pageSize,
+            limit: pageSize,
+        })
+        data.total = await cameraRecord.count({ where: query })
+        res.success(data)
+    },
 }

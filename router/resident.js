@@ -47,6 +47,9 @@ register('get', '/notices', notice.getNoticeList)
 // 更新通知状态
 register('put', '/notice', notice.updateStatus)
 
+/** */
+register('get', '/records', resident.getCameraRecordsById)
+
 /**
  * register ctrl and validate(if any) midware funcs to routes
  * @param {string} method    http method

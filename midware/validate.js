@@ -68,6 +68,11 @@ module.exports = {
         ['userId', Type.Number, false],
     ],
 
+    getCameraRecordsById: [
+        ['pageNo', Type.Number, true],
+        ['pageSize', Type.Number, true],
+    ],
+
     addBug: [
         ['title', Type.String, true],
         ['content', Type.String, true],

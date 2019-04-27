@@ -191,13 +191,21 @@ module.exports = {
      * 获取用户人脸模型
      */
     async getUserFaceModel(req, res) {
-        const { userId } = req.query
+        const { userId, isActive } = req.query
+        console.log(isActive)
         let id
         if (userId && userSvc.checkAdmin(req.auth.type)) {
             id = userId
         } else id = req.auth.selfId
+        const query = {
+            people_id: id,
+            type: FaceModel.First.value,
+        }
+        if (isActive !== undefined) {
+            query.is_active = isActive
+        }
         const data = await faceData.findAll({
-            where: { people_id: id, type: FaceModel.First.value },
+            where: query,
             attributes: ['id', 'model_image', 'is_active', 'people_id'],
         })
         res.success(data)
@@ -416,5 +424,4 @@ module.exports = {
             })
         })
     },
-
 }

@@ -3,6 +3,7 @@ const nodemailer = require('nodemailer')
 let smtpTransport = require('nodemailer-smtp-transport')
 const config = require('../config')
 
+// 填入基础的邮箱信息
 smtpTransport = nodemailer.createTransport(smtpTransport({
     service: config.EMAIL.SERVICE,
     port: 465,
@@ -14,6 +15,11 @@ smtpTransport = nodemailer.createTransport(smtpTransport({
 }))
 const sendMail = promisify(smtpTransport.sendMail).bind(smtpTransport)
 module.exports = {
+    /**
+     * @param {*} recipient 接收者
+     * @param {*} subject 主题
+     * @param {*} text 内容
+     */
     async sendEmail(recipient, subject, text) {
         await sendMail({
             from: config.EMAIL.USER,
