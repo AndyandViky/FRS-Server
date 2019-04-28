@@ -61,6 +61,14 @@ module.exports = {
         ['modelId', Type.Number, true],
     ],
 
+    approveVisite: [
+        ['visitorId', Type.Number, true],
+    ],
+
+    deleteFaceModel: [
+        ['modelId', Type.Number, true],
+    ],
+
     getCameraRecords: [
         ['pageNo', Type.Number, true],
         ['pageSize', Type.Number, true],

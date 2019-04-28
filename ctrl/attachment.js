@@ -1,6 +1,6 @@
-const { attachment, enums } = require('../models')
 const multiparty = require('multiparty')
 const gm = require('gm')
+const { attachment, enums } = require('../models')
 
 const { UploadPath } = enums
 
@@ -16,6 +16,7 @@ module.exports = {
             const paths = files.file[0].path
             const imageMagick = gm.subClass({ imageMagick: true })
             imageMagick(paths).size(async (err, value) => {
+                console.log(err)
                 if (err) return next(new Error('获取失败, 请重新上传'))
                 let Rwidth
                 let Rheight

@@ -46,8 +46,10 @@ register('post', '/like', question.addLike)
 register('get', '/notices', notice.getNoticeList)
 // 更新通知状态
 register('put', '/notice', notice.updateStatus)
+// 获取消息未读数
+register('get', '/notice/unread', notice.getUnreadNoticeCount)
 
-/** */
+// App获取门禁记录
 register('get', '/records', resident.getCameraRecordsById)
 
 /**

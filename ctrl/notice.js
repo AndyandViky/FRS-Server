@@ -14,7 +14,7 @@ module.exports = {
         const { pageNo, pageSize, status, userId } = req.query
         const { selfId, type } = req.auth
         const query = { people_id: selfId }
-        if (status) {
+        if (status !== undefined) {
             query.status = status
         }
         if (userId && userSvc.checkAdmin(type)) query.people_id = userId
@@ -32,6 +32,16 @@ module.exports = {
         })
         data.total = await notice.count({ where: query })
         res.success(data)
+    },
+
+    /**
+     * 获取消息未读数
+     */
+    async getUnreadNoticeCount(req, res) {
+        const count = await notice.count({
+            where: { people_id: req.auth.selfId, status: ReadStatus.NotReaded.value },
+        })
+        res.success(count)
     },
 
     /**

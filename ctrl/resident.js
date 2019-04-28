@@ -12,7 +12,7 @@ const {
 const { common } = require('../util')
 const { faceSvc, emailSvc } = require('../service')
 
-const { DataStatus, UserRank, DoorStatus, VisitorStatus } = enums
+const { DataStatus, UserRank, DoorStatus, VisitorStatus, FaceModel } = enums
 
 module.exports = {
     /**
@@ -21,26 +21,27 @@ module.exports = {
     async approveVisite(req, res) {
         const { visitorId } = req.body
         await visitorRecord.update({
-            where: {
-                id: visitorId,
-            },
-        }, {
             pass_time: Date.now(),
             status: VisitorStatus.Pass.value,
-        })
-        // 启用访客的人像图
-        const face = await faceData.findOne({
+        }, {
             where: {
-                people_id: visitorId,
+                visitor_id: visitorId,
             },
         })
-        face.is_active = DataStatus.Actived.value
-        await face.save()
-        // 发送通知，此处由于输入的为手机号，所以会发生错误
-        const visitor = await peoples.findById(visitorId, {
-            attributes: ['email'],
+        // 启用访客的人像图
+        await faceData.update({
+            is_active: DataStatus.Actived.value,
+        }, {
+            where: {
+                people_id: visitorId,
+                type: FaceModel.First.value,
+            },
         })
-        emailSvc.sendEmail(visitor.email, '访问通过通知', '尊敬的用户你好，您申请的访问已被通过！')
+        // 发送通知，此处由于输入的为手机号，所以会发生错误
+        // const visitor = await peoples.findById(visitorId, {
+        //     attributes: ['email'],
+        // })
+        // emailSvc.sendEmail(visitor.email, '访问通过通知', '尊敬的用户你好，您申请的访问已被通过！')
         res.success()
     },
 
@@ -73,6 +74,8 @@ module.exports = {
         })
         req.body.status = DataStatus.Actived.value
         req.body.pass_time = Date.now()
+        req.body.belong = req.auth.selfId
+
         let userId
         if (people) {
             // 已注册
@@ -100,7 +103,11 @@ module.exports = {
         }
         let isActived = DataStatus.Actived.value
         const faceCount = await faceData.count({
-            where: { people_id: userId, is_active: DataStatus.Actived.value },
+            where: {
+                people_id: userId,
+                is_active: DataStatus.Actived.value,
+                type: FaceModel.First.value,
+            },
         })
         if (faceCount > 0) isActived = DataStatus.NotActived.value
         const imageData = await attachment.findOne({

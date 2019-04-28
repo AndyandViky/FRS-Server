@@ -274,17 +274,39 @@ module.exports = {
     /**
      * 激活人脸模型
      */
-    async activeModel(req, res) {
+    async activeModel(req, res, next) {
         const { modelId, userId } = req.body
+        const { selfId } = req.auth
         let id
         if (userId && userSvc.checkAdmin(req.auth.type)) {
             id = userId
-        } else id = req.auth.selfId
+        } else id = selfId
+        // 验证激活图片的是否为访客
+        const user = await peoples.findById(selfId, {
+            attributes: ['types'],
+        })
+        if (user.types === UserRank.Visitor.value) {
+            // 查看访客记录
+            const visiteCount = visitorRecord.count({
+                where: { visitor_id: selfId, status: DataStatus.Actived.value },
+            })
+            if (visiteCount === 0) {
+                return next(new Error('您的访问申请尚未通过！'))
+            }
+        }
+
         if (modelId !== 0) {
             const data = await faceData.findOne({
-                where: { people_id: id, is_active: DataStatus.Actived.value },
+                where: {
+                    people_id: id,
+                    is_active: DataStatus.Actived.value,
+                    type: FaceModel.First.value,
+                },
             })
             if (data) {
+                if (data.id === parseInt(modelId)) {
+                    return next(new Error('该人像已经被激活，请勿重复激活！'))
+                }
                 await data.update({
                     is_active: DataStatus.NotActived.value,
                 })
@@ -301,6 +323,17 @@ module.exports = {
                 where: { people_id: id, type: FaceModel.First.value },
             })
         }
+        res.success()
+    },
+
+    /**
+     * 删除人脸模型
+     */
+    async deleteFaceModel(req, res) {
+        const { modelId } = req.body
+        await faceData.destroy({
+            where: { id: modelId },
+        })
         res.success()
     },
 
@@ -343,7 +376,7 @@ module.exports = {
         const { pageNo, pageSize, status, userId } = req.query
         const { selfId, type } = req.auth
         const query = { belong: selfId }
-        if (status) {
+        if (status !== undefined) {
             query.status = status
         }
         if (userId && userSvc.checkAdmin(type)) query.belong = userId
