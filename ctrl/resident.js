@@ -51,10 +51,19 @@ module.exports = {
     async openDoor(req, res, next) {
         const { selfPwd } = req.body
         // 判断密码  --- 暂不验证
-        const result = await faceSvc.openDoor({ type: 0 })
-        if (result.code === -1) {
-            return next(new Error(result.data))
+        if (selfPwd !== '-1') {
+            const resident = await users.findOne({
+                where: { people_id: req.auth.selfId },
+                attributes: ['self_password'],
+            })
+            if (resident.self_password !== selfPwd) {
+                return next(new Error('输入密码错误！'))
+            }
         }
+        // const result = await faceSvc.openDoor({ type: 0 })
+        // if (result.code === -1) {
+        //     return next(new Error(result.data))
+        // }
         await cameraRecord.create({
             people_id: req.auth.selfId,
             face_img: '',
