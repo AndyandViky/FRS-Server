@@ -64,7 +64,7 @@ module.exports = {
      */
     async register(req, res, next) {
         const { password, confirmPwd, email, vCode } = req.body
-        cache.get(email, (async code => {
+        cache.get(email, (async (err, code) => {
             if (code !== vCode) return next(new Error('验证码不正确'))
             if (password !== confirmPwd) return next(new Error('两次密码输入不一致'))
             req.body.password = common.encryptInfo(password)

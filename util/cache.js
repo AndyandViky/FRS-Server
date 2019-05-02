@@ -1,5 +1,10 @@
 const redis  = require('./redis')
 
+/**
+ *  文章列表
+ *  论坛列表
+ */
+
 const get = function (key, callback) {
     redis.get(key, (err, data) => {
         if (err) {
@@ -11,6 +16,25 @@ const get = function (key, callback) {
         data = JSON.parse(data)
 
         callback(null, data)
+    })
+}
+
+/**
+ * Promise 版本
+ */
+exports.getByPromise = function (key) {
+    return new Promise((reslove, reject) => {
+        redis.get(key, (err, data) => {
+            if (err) {
+                reject(err)
+            }
+            if (!data) {
+                reslove()
+            }
+            data = JSON.parse(data)
+
+            reslove(data)
+        })
     })
 }
 

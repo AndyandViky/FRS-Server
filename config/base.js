@@ -25,6 +25,7 @@ const config = {
     REDIS_HOST: '127.0.0.1',
     REDIS_PORT: 6379,
     REDIS_DB: 0,
+    EXPIRE_TIME: 3600 * 24,
 
     PORT: {
         HTTP: '8000',

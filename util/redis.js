@@ -1,5 +1,5 @@
-const config = require('../config')
 const Redis  = require('ioredis')
+const config = require('../config')
 
 const client = new Redis({
     port: config.REDIS_PORT,
@@ -10,7 +10,8 @@ const client = new Redis({
 
 client.on('error', (err) => {
     if (err) {
-        process.exit(1)
+        console.log('redis连接失败！')
+        // process.exit(1)
     }
 })
 

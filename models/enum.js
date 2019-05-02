@@ -52,4 +52,9 @@ module.exports = {
         Add: { value: 1, text: '点赞' },
         Cancel: { value: 0, text: '取消点赞' },
     },
+
+    CacheKey: {
+        Articles: 'GETARTICLELIST',
+        Questions: 'GETQUESTIONS',
+    },
 }
