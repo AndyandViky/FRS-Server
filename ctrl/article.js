@@ -3,7 +3,7 @@ const {
 } = require('../models')
 const { cache } = require('../util')
 const { CacheKey } = require('../models').enums
-const { config } = require('../config')
+const config = require('../config')
 
 module.exports = {
     /**
@@ -40,7 +40,8 @@ module.exports = {
      */
     async addArticle(req, res) {
         await article.create(req.body)
-        updateArticleCache()
+        console.log('发布文章')
+        await updateArticleCache()
         res.success()
     },
 
@@ -51,7 +52,7 @@ module.exports = {
         await article.destroy({
             where: { id: req.body.articleId },
         })
-        updateArticleCache()
+        await updateArticleCache()
         res.success()
     },
 
@@ -62,7 +63,7 @@ module.exports = {
         await article.update(req.body, {
             where: { id: req.body.articleId },
         })
-        updateArticleCache()
+        await updateArticleCache()
         res.success()
     },
 }
@@ -76,7 +77,7 @@ async function getArticlesByCache(query) {
 
     let articles = await cache.getByPromise(CacheKey.Articles)
     if (!articles) {
-        articles = updateArticleCache()
+        articles = await updateArticleCache()
     }
     const data = []
     let index = (pageNo - 1) * pageSize

@@ -57,3 +57,9 @@ const set = function (key, value, time, callback) {
 }
 
 exports.set = set
+
+const remove = function (key) {
+    redis.del(key)
+}
+
+exports.delete = remove
