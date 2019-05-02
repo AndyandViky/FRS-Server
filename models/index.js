@@ -1,5 +1,5 @@
-const { sequelize } = require('../util')
 const Sequelize = require('sequelize')
+const { sequelize } = require('../util')
 
 const admin = require('./admin')(sequelize, Sequelize)
 const adress = require('./adress')(sequelize, Sequelize)
@@ -10,7 +10,7 @@ const bug = require('./bug')(sequelize, Sequelize)
 const cameraConfig = require('./camera_config')(sequelize, Sequelize)
 const cameraRecord = require('./camera_record')(sequelize, Sequelize)
 const category = require('./category')(sequelize, Sequelize)
-const config = require('./config')(sequelize, Sequelize)
+const systemConfig = require('./config')(sequelize, Sequelize)
 const faceData = require('./face_data')(sequelize, Sequelize)
 const notice = require('./notice')(sequelize, Sequelize)
 const peoples = require('./peoples')(sequelize, Sequelize)
@@ -52,7 +52,7 @@ module.exports = {
     cameraConfig,
     cameraRecord,
     category,
-    config,
+    systemConfig,
     faceData,
     notice,
     peoples,

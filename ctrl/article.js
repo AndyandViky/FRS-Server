@@ -40,6 +40,7 @@ module.exports = {
      */
     async addArticle(req, res) {
         await article.create(req.body)
+        updateArticleCache()
         res.success()
     },
 
@@ -50,6 +51,7 @@ module.exports = {
         await article.destroy({
             where: { id: req.body.articleId },
         })
+        updateArticleCache()
         res.success()
     },
 
@@ -60,6 +62,7 @@ module.exports = {
         await article.update(req.body, {
             where: { id: req.body.articleId },
         })
+        updateArticleCache()
         res.success()
     },
 }

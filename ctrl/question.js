@@ -195,3 +195,17 @@ module.exports = {
         res.success()
     },
 }
+
+// /**
+//  * 获取缓存中的问题
+//  * @param {*} query
+//  */
+// async function getQuestionsByCache(query) {
+
+// }
+// /**
+//  * 更新问答缓存
+//  */
+// async function updateQuestionsCache() {
+
+// }
