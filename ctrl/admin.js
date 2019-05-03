@@ -91,7 +91,8 @@ module.exports = {
     async getUsers(req, res) {
         const { pageNo, pageSize, types, search } = req.query
         const query = { types }
-        if (search) {
+        if (search !== undefined && search !== '{}') {
+            console.log(search)
             const searchData = JSON.parse(search)
             if (searchData.searchName !== '') {
                 query.name = { $like: `%${searchData.searchName}%` }
