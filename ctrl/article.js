@@ -21,8 +21,7 @@ module.exports = {
             pageSize,
             total: '',
         }
-        data.datas = await getArticlesByCache(req.query)
-        data.total = await article.count({ where: query })
+        data.total = await getArticlesByCache(req.query, data.datas)
         res.success(data)
     },
 
@@ -72,30 +71,30 @@ module.exports = {
  * 获取缓存中的文章
  * @param {*} query
  */
-async function getArticlesByCache(query) {
+async function getArticlesByCache(query, datas) {
     const { pageNo, pageSize, status } = query
 
     let articles = await cache.getByPromise(CacheKey.Articles)
     if (!articles) {
+        console.log('文章缓存没有了')
         articles = await updateArticleCache()
     }
-    const data = []
     let index = (pageNo - 1) * pageSize
     if (status === undefined) {
         for (let i = index; i < index + pageSize && articles[i]; i++) {
-            data.push(articles[i])
+            datas.push(articles[i])
         }
     } else {
         let count = 0
         while (count < pageSize && articles[index]) {
             if (articles[index].status === status) {
-                data.push(articles[index])
+                datas.push(articles[index])
                 count++
             }
             index++
         }
     }
-    return data
+    return articles.length
 }
 
 /**

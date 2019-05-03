@@ -55,7 +55,9 @@
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-jsx-a11y": "^6.1.2",
     "eslint-plugin-react": "^7.11.1",
+    "iconv-lite": "^0.4.24",
     "mocha": "^5.2.0",
+    "request": "^2.88.0",
     "should": "^13.2.3",
     "supertest": "^3.3.0"
   }
