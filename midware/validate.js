@@ -91,6 +91,7 @@ module.exports = {
         ['pageNo', Type.Number, true],
         ['pageSize', Type.Number, true],
         ['status', Type.Number, false],
+        ['category', Type.String, false],
     ],
 
     getArticle: [

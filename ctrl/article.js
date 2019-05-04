@@ -1,9 +1,8 @@
 const {
     article,
-    userBehavior,
 } = require('../models')
 const { cache } = require('../util')
-const { CacheKey } = require('../models').enums
+const { CacheKey, ArticleCategory } = require('../models').enums
 const config = require('../config')
 
 module.exports = {
@@ -11,11 +10,7 @@ module.exports = {
      * 获取文章列表
      */
     async getArticles(req, res) {
-        const { pageNo, pageSize, status } = req.query
-        const query = {}
-        if (status !== undefined) {
-            query.status = status
-        }
+        const { pageNo, pageSize } = req.query
         const data = {
             datas: [],
             pageNo,
@@ -73,7 +68,7 @@ module.exports = {
  * @param {*} query
  */
 async function getArticlesByCache(query, datas) {
-    const { pageNo, pageSize, status } = query
+    const { pageNo, pageSize, category } = query
 
     let articles = await cache.getByPromise(CacheKey.Articles)
     if (!articles) {
@@ -81,21 +76,48 @@ async function getArticlesByCache(query, datas) {
         articles = await updateArticleCache()
     }
     let index = (pageNo - 1) * pageSize
-    if (status === undefined) {
-        for (let i = index; i < index + pageSize && articles[i]; i++) {
-            datas.push(articles[i])
+    let count = 0
+    let total = articles.length
+    if (category !== undefined) {
+        if (category === 'recommond') {
+            // 选取推荐的
+            console.log('获取推荐文章')
+            total = 0
+        } else if (category === 'other') {
+            // 选取除普通文章之外的
+            console.log('获取动态文章')
+            while (count < pageSize && articles[index]) {
+                if (articles[index].category === ArticleCategory.Lost.value
+                || articles[index].category === ArticleCategory.Dynamic.value) {
+                    datas.push(articles[index])
+                    count++
+                }
+                index++
+            }
+            total = await article.count({
+                where: { category: {
+                    $in: [ArticleCategory.Lost.value, ArticleCategory.Dynamic.value],
+                } },
+            })
+        } else {
+            while (count < pageSize && articles[index]) {
+                if (articles[index].category === ArticleCategory.Article.value) {
+                    datas.push(articles[index])
+                    count++
+                }
+                index++
+            }
+            total = await article.count({
+                where: { category: ArticleCategory.Article.value },
+            })
         }
     } else {
-        let count = 0
         while (count < pageSize && articles[index]) {
-            if (articles[index].status === status) {
-                datas.push(articles[index])
-                count++
-            }
-            index++
+            datas.push(articles[index++])
+            count++
         }
     }
-    return articles.length
+    return total
 }
 
 /**

@@ -64,4 +64,10 @@ module.exports = {
     BehaviorCategory: {
         article: { value: 1, text: '阅读文章行为' },
     },
+
+    ArticleCategory: {
+        Article: { value: '普通文章', text: '普通文章' },
+        Lost: { value: '失物招领', text: '失物招领' },
+        Dynamic: { value: '小区动态', text: '小区动态' },
+    },
 }
