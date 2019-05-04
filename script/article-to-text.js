@@ -25,9 +25,28 @@ async function toText() {
         $('link').each(function () {
             $(this).remove()
         })
+        $('code').each(function () {
+            $(this).remove()
+        })
+        $('img').each(function () {
+            $(this).remove()
+        })
+        $('head').each(function () {
+            $(this).remove()
+        })
+        $('meta').each(function () {
+            $(this).remove()
+        })
+        $('script').each(function () {
+            $(this).remove()
+        })
+        $('title').each(function () {
+            $(this).remove()
+        })
         // 剔除<a>, <image>, <code>, <link>标签
-        let text = $.text().trim().replace(/(\n[\s|\t]*\r*\n)/g, '\n').replace(/^[\n|\r\n]*|[\n|\r\n]*$/g, '')
+        let text = $.text().trim()
         text = deleteStr(text, '版权声明')
+        text = text.replace(/\r\n/g, ' ')
         text = `${JSON.stringify(item.id)}@@@${JSON.stringify(item.title)}@@@${JSON.stringify(text)}`
         try {
             fWrite.write(text + os.EOL)
