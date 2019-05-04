@@ -2,7 +2,6 @@ const express = require('express')
 const { validate } = require('../midware')
 const {
     notice,
-    user,
     resident,
     article,
     question,
@@ -15,7 +14,7 @@ const router = express.Router()
  * 业主
  */
 register('put', '/verify', resident.residentVerify)
-register('get', '/visitors', user.getVisitors)
+register('get', '/visitors', resident.getVisitors)
 register('put', '/visite', resident.approveVisite)
 register('post', '/visitor', resident.registerVisitor)
 register('post', '/open/door', resident.openDoor)
@@ -51,6 +50,9 @@ register('get', '/notice/unread', notice.getUnreadNoticeCount)
 
 // App获取门禁记录
 register('get', '/records', resident.getCameraRecordsById)
+
+// 推荐行为
+register('post', '/behavior', resident.addNewBehavior)
 
 /**
  * register ctrl and validate(if any) midware funcs to routes

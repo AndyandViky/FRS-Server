@@ -259,6 +259,12 @@ module.exports = {
         ['types', Type.Number, true],
     ],
 
+    addNewBehavior: [
+        ['type', Type.Number, true],
+        ['categoryId', Type.Number, true],
+        ['duration', Type.Number, true],
+    ],
+
     openCamera: [
         ['cameraNum', Type.Number, true],
     ],

@@ -370,47 +370,6 @@ module.exports = {
     },
 
     /**
-     * 根据id获取访客记录
-     */
-    async getVisitors(req, res) {
-        const { pageNo, pageSize, status, userId } = req.query
-        const { selfId, type } = req.auth
-        const query = { belong: selfId }
-        if (status !== undefined) {
-            query.status = status
-        }
-        if (userId && userSvc.checkAdmin(type)) query.belong = userId
-        const data = {
-            datas: [],
-            pageNo,
-            pageSize,
-            total: '',
-        }
-        data.datas = await visitorRecord.findAll({
-            include: [peoples],
-            where: query,
-            offset: (pageNo - 1) * pageSize,
-            limit: pageSize,
-        })
-        data.total = await visitorRecord.count({ where: query })
-        res.success(data)
-    },
-
-    /**
-     * 给访客延期
-     */
-    async addVisiteTime(req, res) {
-        const { recordId, deadline } = req.body
-        await visitorRecord.update({
-            deadline,
-            pass_time: Date.now().toString(),
-        }, {
-            where: { id: recordId },
-        })
-        res.success()
-    },
-
-    /**
      * 跨年领测试
      */
     async ageText(req, res, next) {

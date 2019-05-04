@@ -8,9 +8,10 @@ const {
     cameraRecord,
     notice,
     config,
+    userBehavior,
 } = require('../models')
 const { common } = require('../util')
-const { faceSvc, emailSvc } = require('../service')
+const { faceSvc, emailSvc, userSvc } = require('../service')
 
 const { DataStatus, UserRank, DoorStatus, VisitorStatus, FaceModel } = enums
 
@@ -190,5 +191,85 @@ module.exports = {
         })
         data.total = await cameraRecord.count({ where: query })
         res.success(data)
+    },
+
+    /**
+     * 给访客延期
+     */
+    async addVisiteTime(req, res) {
+        const { recordId, deadline } = req.body
+        await visitorRecord.update({
+            deadline,
+            pass_time: Date.now().toString(),
+        }, {
+            where: { id: recordId },
+        })
+        res.success()
+    },
+
+    /**
+     * 根据id获取访客记录
+     */
+    async getVisitors(req, res) {
+        const { pageNo, pageSize, status, userId } = req.query
+        const { selfId, type } = req.auth
+        const query = { belong: selfId }
+        if (status !== undefined) {
+            query.status = status
+        }
+        if (userId && userSvc.checkAdmin(type)) query.belong = userId
+        const data = {
+            datas: [],
+            pageNo,
+            pageSize,
+            total: '',
+        }
+        data.datas = await visitorRecord.findAll({
+            include: [peoples],
+            where: query,
+            offset: (pageNo - 1) * pageSize,
+            limit: pageSize,
+        })
+        data.total = await visitorRecord.count({ where: query })
+        res.success(data)
+    },
+
+    /**
+     * 增加用户行为
+     */
+    async addNewBehavior(req, res) {
+        const { selfId } = req.auth
+        const { type, categoryId, duration } = req.body
+        const data = await userBehavior.findOne({
+            where: { people_id: selfId },
+            attributes: ['id', 'behavior'],
+        })
+        const newData = {
+            categoryId,
+            type,
+            duration,
+            createTime: Date.now(),
+        }
+        if (data) {
+            // 以前存在记录，直接进行更新
+            const jsonData = JSON.parse(data.behavior)
+            console.log(jsonData)
+            const isLive = jsonData.find((item) => {
+                return item.categoryId === parseInt(categoryId)
+            })
+            if (isLive) {
+                isLive.duration += parseInt(duration)
+                isLive.createTime = Date.now()
+            } else jsonData.push(newData)
+            data.behavior = JSON.stringify(jsonData)
+            data.save()
+        } else {
+            // 没有记录，创建一个新的记录
+            await userBehavior.create({
+                people_id: selfId,
+                behavior: JSON.stringify([newData]),
+            })
+        }
+        res.success()
     },
 }

@@ -1,5 +1,6 @@
 const {
     article,
+    userBehavior,
 } = require('../models')
 const { cache } = require('../util')
 const { CacheKey } = require('../models').enums

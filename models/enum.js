@@ -57,4 +57,11 @@ module.exports = {
         Articles: 'GETARTICLELIST',
         Questions: 'GETQUESTIONS',
     },
+
+    /**
+     * 住户行为
+     */
+    BehaviorCategory: {
+        article: { value: 1, text: '阅读文章行为' },
+    },
 }

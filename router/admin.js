@@ -7,6 +7,7 @@ const {
     article,
     question,
     user,
+    resident,
 } = require('../ctrl')
 
 const router = express.Router()
@@ -27,8 +28,8 @@ register('put', '/user', user.changeUserInfo)
 register('delete', '/user', admin.deleteUser)
 register('get', '/face', user.getUserFaceModel)
 register('put', '/face/active', user.activeModel)
-register('get', '/visitors', user.getVisitors)
-register('put', '/visite/time', user.addVisiteTime)
+register('get', '/visitors', resident.getVisitors)
+register('put', '/visite/time', resident.addVisiteTime)
 
 /**
  * 摄像头
