@@ -43,6 +43,9 @@ async function toText() {
         $('title').each(function () {
             $(this).remove()
         })
+        $('video').each(function () {
+            $(this).remove()
+        })
         // 剔除<a>, <image>, <code>, <link>标签
         let text = $.text().trim()
         text = deleteStr(text, '版权声明')

@@ -243,5 +243,5 @@ async function guokrRepetile() {
         } catch (err) {
             console.log('出错了')
         }
-    }, 500)
+    }, 200)
 }

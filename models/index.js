@@ -21,6 +21,8 @@ const users = require('./users')(sequelize, Sequelize)
 const visitorRecord = require('./visitor_record')(sequelize, Sequelize)
 const visitor = require('./visitor')(sequelize, Sequelize)
 const questionLike = require('./question_like')(sequelize, Sequelize)
+const userBehavior = require('./user_behavior')(sequelize, Sequelize)
+const recommond = require('./recommond')(sequelize, Sequelize)
 
 visitorRecord.belongsTo(peoples, { foreignKey: 'visitor_id' })
 
@@ -63,5 +65,7 @@ module.exports = {
     visitorRecord,
     visitor,
     questionLike,
+    userBehavior,
+    recommond,
     enums: require('./enum'),
 }
