@@ -1,8 +1,9 @@
 const {
     article,
+    recommond,
 } = require('../models')
 const { cache } = require('../util')
-const { CacheKey, ArticleCategory } = require('../models').enums
+const { CacheKey, ArticleCategory, BehaviorCategory } = require('../models').enums
 const config = require('../config')
 
 module.exports = {
@@ -17,7 +18,7 @@ module.exports = {
             pageSize,
             total: '',
         }
-        data.total = await getArticlesByCache(req.query, data.datas)
+        data.total = await getArticlesByCache(req.query, data.datas, req.auth.selfId)
         res.success(data)
     },
 
@@ -67,7 +68,7 @@ module.exports = {
  * 获取缓存中的文章
  * @param {*} query
  */
-async function getArticlesByCache(query, datas) {
+async function getArticlesByCache(query, datas, selfId) {
     const { pageNo, pageSize, category } = query
 
     let articles = await cache.getByPromise(CacheKey.Articles)
@@ -77,47 +78,52 @@ async function getArticlesByCache(query, datas) {
     }
     let index = (pageNo - 1) * pageSize
     let count = 0
-    let total = articles.length
+    let tempArticles = []
     if (category !== undefined) {
         if (category === 'recommond') {
             // 选取推荐的
             console.log('获取推荐文章')
-            total = 0
+            const recommondData = await recommond.findOne({
+                where: { people_id: selfId },
+                attributes: ['recommonds'],
+            })
+            if (recommondData) {
+                const recommondIds = JSON.parse(recommondData.recommonds)
+                // {
+                //     type: 1,
+                //     id: 30000,
+                // }
+                tempArticles = await article.findAll({
+                    where: { id: {
+                        $in: recommondIds,
+                    } },
+                })
+            } else {
+                // 没有推荐，拿最新的10个
+                tempArticles = articles.slice(-10)
+                console.log('暂无推荐')
+            }
         } else if (category === 'other') {
             // 选取除普通文章之外的
             console.log('获取动态文章')
-            while (count < pageSize && articles[index]) {
-                if (articles[index].category === ArticleCategory.Lost.value
-                || articles[index].category === ArticleCategory.Dynamic.value) {
-                    datas.push(articles[index])
-                    count++
-                }
-                index++
-            }
-            total = await article.count({
-                where: { category: {
-                    $in: [ArticleCategory.Lost.value, ArticleCategory.Dynamic.value],
-                } },
+            tempArticles = articles.filter((item) => {
+                return item.category === ArticleCategory.Lost.value
+                || item.category === ArticleCategory.Dynamic.value
             })
         } else {
-            while (count < pageSize && articles[index]) {
-                if (articles[index].category === ArticleCategory.Article.value) {
-                    datas.push(articles[index])
-                    count++
-                }
-                index++
-            }
-            total = await article.count({
-                where: { category: ArticleCategory.Article.value },
+            // 选取普通文章
+            tempArticles = articles.filter((item) => {
+                return item.category === ArticleCategory.Article.value
             })
         }
     } else {
-        while (count < pageSize && articles[index]) {
-            datas.push(articles[index++])
-            count++
-        }
+        tempArticles = articles
     }
-    return total
+    while (count < pageSize && tempArticles[index]) {
+        datas.push(tempArticles[index++])
+        count++
+    }
+    return tempArticles.length
 }
 
 /**

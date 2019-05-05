@@ -55,4 +55,10 @@ module.exports = {
         const result = await faceRequest.post(url, data)
         return result
     },
+
+    async getRecommondById(data) {
+        const url = `${config.BE_DOMAIN}/recommond`
+        const result = await faceRequest.get(url, data)
+        return result
+    },
 }
