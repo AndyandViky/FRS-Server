@@ -9,6 +9,7 @@ const {
     notice,
     config,
     userBehavior,
+    recommond,
 } = require('../models')
 const { common } = require('../util')
 const { faceSvc, emailSvc, userSvc } = require('../service')
@@ -271,5 +272,49 @@ module.exports = {
             })
         }
         res.success()
+    },
+
+    /**
+     * 更新推荐
+     */
+    async updateRecommond(req, res) {
+        const { selfId } = req.auth
+        const interval = new Date() - 3 * 24 * 60 * 60 * 1000
+        // 查找三天之内更新的行为
+        const data = await userBehavior.findOne({
+            where: {
+                people_id: selfId,
+                updated_at: {
+                    $between: [new Date(interval), new Date()],
+                },
+            },
+            attributes: ['id', 'people_id', 'behavior'],
+        })
+        if (data) {
+            data.behavior = JSON.parse(data.behavior)
+            // 先更新一下behavior
+            data.behavior = data.behavior.filter((rItem) => {
+                return rItem.createTime > interval
+            })
+            const recomnondIds = await faceSvc.getRecommondById({ behavior: data.behavior })
+            // const recomnondIds = [22379, 22378, 22377, 22376, 22375, 22374, 22373, 22372, 22371, 22370]
+            // 获取到新的数据，更新数据
+            const preRIds = await recommond.findOne({
+                where: { people_id: data.people_id },
+            })
+            if (!preRIds) {
+                // 第一次推荐
+                await recommond.create({
+                    people_id: data.people_id,
+                    recommonds: JSON.stringify(recomnondIds),
+                })
+            } else {
+                preRIds.recommonds = JSON.stringify(recomnondIds)
+                preRIds.save()
+            }
+            // item使用结束后更新至数据库
+            data.behavior = JSON.stringify(data.behavior)
+            data.save()
+        }
     },
 }

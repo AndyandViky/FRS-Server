@@ -29,7 +29,7 @@ schedule.scheduleJob('* */5 * * * *', async () => {
             item.behavior = item.behavior.filter((rItem) => {
                 return rItem.createTime > interval
             })
-            // const recomnondIds = await faceSvc.getRecommondById(item.behavior)
+            // const recomnondIds = await faceSvc.getRecommondById({ behavior: item.behavior })
             const recomnondIds = [22379, 22378, 22377, 22376, 22375, 22374, 22373, 22372, 22371, 22370]
             // 获取到新的数据，更新数据
             const preRIds = await recommond.findOne({

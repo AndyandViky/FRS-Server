@@ -53,6 +53,7 @@ register('get', '/records', resident.getCameraRecordsById)
 
 // 推荐行为
 register('post', '/behavior', resident.addNewBehavior)
+register('put', '/recommond', resident.updateRecommond)
 
 /**
  * register ctrl and validate(if any) midware funcs to routes
