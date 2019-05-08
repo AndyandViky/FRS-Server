@@ -277,7 +277,7 @@ module.exports = {
     /**
      * 更新推荐
      */
-    async updateRecommond(req, res) {
+    async updateRecommond(req, res, next) {
         const { selfId } = req.auth
         const interval = new Date() - 3 * 24 * 60 * 60 * 1000
         // 查找三天之内更新的行为
@@ -288,17 +288,26 @@ module.exports = {
                     $between: [new Date(interval), new Date()],
                 },
             },
-            attributes: ['id', 'people_id', 'behavior'],
+            attributes: ['id', 'people_id', 'behavior', 'updated_at'],
         })
         if (data) {
+            console.log(new Date() - data.updated_at)
+            if (new Date() - data.updated_at < 3600 * 8 * 1000 + 60000) {
+                return next(new Error('间隔太短，暂时不能推荐'))
+            }
             data.behavior = JSON.parse(data.behavior)
             // 先更新一下behavior
             data.behavior = data.behavior.filter((rItem) => {
                 return rItem.createTime > interval
             })
-            const recomnondIds = await faceSvc.getRecommondById({ behavior: data.behavior })
+            const recommonds = await faceSvc.getRecommondById({ behavior: data.behavior })
             // const recomnondIds = [22379, 22378, 22377, 22376, 22375, 22374, 22373, 22372, 22371, 22370]
             // 获取到新的数据，更新数据
+            const recommondData = JSON.parse(recommonds.data)
+            const recomnondIds = []
+            for (const key in recommondData.reference_label) {
+                recomnondIds.push(recommondData.reference_label[key])
+            }
             const preRIds = await recommond.findOne({
                 where: { people_id: data.people_id },
             })
@@ -316,5 +325,6 @@ module.exports = {
             data.behavior = JSON.stringify(data.behavior)
             data.save()
         }
+        res.success()
     },
 }
