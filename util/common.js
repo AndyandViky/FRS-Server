@@ -53,3 +53,11 @@ exports.encryptInfo = function (content) {
     sha1.update(content)
     return sha1.digest('hex')
 }
+
+exports.compare = function (property) {
+    return function (obj1, obj2) {
+        const value1 = obj1[property]
+        const value2 = obj2[property]
+        return value2 - value1  // 降序
+    }
+}

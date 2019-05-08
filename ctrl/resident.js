@@ -13,6 +13,7 @@ const {
 } = require('../models')
 const { common } = require('../util')
 const { faceSvc, emailSvc, userSvc } = require('../service')
+const { compare } = require('../util').common
 
 const { DataStatus, UserRank, DoorStatus, VisitorStatus, FaceModel } = enums
 
@@ -62,10 +63,10 @@ module.exports = {
                 return next(new Error('输入密码错误！'))
             }
         }
-        // const result = await faceSvc.openDoor({ type: 0 })
-        // if (result.code === -1) {
-        //     return next(new Error(result.data))
-        // }
+        const result = await faceSvc.openDoor({ type: 0 })
+        if (result.code === -1) {
+            return next(new Error(result.data))
+        }
         await cameraRecord.create({
             people_id: req.auth.selfId,
             face_img: '',
@@ -256,10 +257,10 @@ module.exports = {
             const jsonData = JSON.parse(data.behavior)
             console.log(jsonData)
             const isLive = jsonData.find((item) => {
-                return item.categoryId === parseInt(categoryId)
+                return parseInt(item.categoryId) === parseInt(categoryId)
             })
             if (isLive) {
-                isLive.duration += parseInt(duration)
+                isLive.duration = parseInt(isLive.duration) + parseInt(duration)
                 isLive.createTime = Date.now()
             } else jsonData.push(newData)
             data.behavior = JSON.stringify(jsonData)
@@ -279,6 +280,14 @@ module.exports = {
      */
     async updateRecommond(req, res, next) {
         const { selfId } = req.auth
+        const preRIds = await recommond.findOne({
+            where: { people_id: selfId },
+        })
+        if (preRIds) {
+            if (new Date() - preRIds.updated_at < 3600 * 8 * 1000 + 60000) {
+                return next(new Error('间隔太短，暂时不能推荐'))
+            }
+        }
         const interval = new Date() - 3 * 24 * 60 * 60 * 1000
         // 查找三天之内更新的行为
         const data = await userBehavior.findOne({
@@ -291,35 +300,38 @@ module.exports = {
             attributes: ['id', 'people_id', 'behavior', 'updated_at'],
         })
         if (data) {
-            console.log(new Date() - data.updated_at)
-            if (new Date() - data.updated_at < 3600 * 8 * 1000 + 60000) {
-                return next(new Error('间隔太短，暂时不能推荐'))
-            }
             data.behavior = JSON.parse(data.behavior)
             // 先更新一下behavior
             data.behavior = data.behavior.filter((rItem) => {
                 return rItem.createTime > interval
             })
-            const recommonds = await faceSvc.getRecommondById({ behavior: data.behavior })
+            const behavior = []
+            const limit = 4
+            if (data.behavior.length > limit) {
+                data.behavior.sort(compare('createTime'))
+                for (let i = 0; i < limit; i++) {
+                    behavior.push(data.behavior[i])
+                }
+            } else {
+                for (let i = 0; i < data.behavior.length; i++) {
+                    behavior.push(data.behavior[i])
+                }
+            }
+            const recommonds = await faceSvc.getRecommondById({ behavior })
             // const recomnondIds = [22379, 22378, 22377, 22376, 22375, 22374, 22373, 22372, 22371, 22370]
             // 获取到新的数据，更新数据
-            const recommondData = JSON.parse(recommonds.data)
-            const recomnondIds = []
-            for (const key in recommondData.reference_label) {
-                recomnondIds.push(recommondData.reference_label[key])
-            }
-            const preRIds = await recommond.findOne({
-                where: { people_id: data.people_id },
-            })
-            if (!preRIds) {
+            const recomnondIds = recommonds.data
+            if (recomnondIds) {
+                if (!preRIds) {
                 // 第一次推荐
-                await recommond.create({
-                    people_id: data.people_id,
-                    recommonds: JSON.stringify(recomnondIds),
-                })
-            } else {
-                preRIds.recommonds = JSON.stringify(recomnondIds)
-                preRIds.save()
+                    await recommond.create({
+                        people_id: data.people_id,
+                        recommonds: JSON.stringify(recomnondIds),
+                    })
+                } else {
+                    preRIds.recommonds = JSON.stringify(recomnondIds)
+                    preRIds.save()
+                }
             }
             // item使用结束后更新至数据库
             data.behavior = JSON.stringify(data.behavior)
