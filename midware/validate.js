@@ -42,7 +42,7 @@ module.exports = {
     changeUserInfo: [
         ['email', Type.String, true],
         ['name', Type.String, true],
-        ['phone', Type.Phone, true],
+        ['phone', Type.Phone, false],
         ['gender', Type.Number, true],
         ['age', Type.Number, true],
     ],

@@ -11,7 +11,7 @@ const {
     attachment,
     visitorRecord,
     cameraRecord,
-    config,
+    systemConfig,
 } = require('../models')
 const { common, cache } = require('../util')
 const { emailSvc, jwtSvc, userSvc, faceSvc } = require('../service')
@@ -178,7 +178,7 @@ module.exports = {
         const { oldPwd, newPwd, confirmPwd } = req.body
         if (newPwd !== confirmPwd) return next(new Error('两次输入密码不一致'))
         const people = await peoples.findById(req.auth.selfId, {
-            attributes: ['password'],
+            attributes: ['id', 'password'],
         })
         if (people.password !== common.encryptInfo(oldPwd)) {
             return next(new Error('输入旧密码错误'))
@@ -222,8 +222,8 @@ module.exports = {
             if (!files) return next(new Error('请上传图片'))
             const paths = files.file[0].path
             const imageMagick = gm.subClass({ imageMagick: true })
-            imageMagick(paths).size(async (err, value) => {
-                if (err) return next(new Error('获取失败, 请重新上传'))
+            imageMagick(paths).size(async (err1, value) => {
+                if (err1) return next(new Error('获取失败, 请重新上传'))
                 let Rwidth
                 let Rheight
                 let rate
@@ -239,7 +239,7 @@ module.exports = {
                 imageMagick(paths)
                     .resize(Rwidth, Rheight, '!')
                     .autoOrient()
-                    .write(paths, async (err) => {
+                    .write(paths, async (err2) => {
                         const atta = await attachment.create({
                             people_id: selfId,
                             path: paths,
@@ -260,7 +260,7 @@ module.exports = {
                         if (apiRes.code === -1) {
                             return next(new Error(apiRes.data))
                         }
-                        await config.update({
+                        await systemConfig.update({
                             isUpdate: DataStatus.Actived.value,
                         }, {
                             where: { id: 1 },
@@ -345,7 +345,7 @@ module.exports = {
         const { pageNo, pageSize, type, userId } = req.query
         const { selfId } = req.auth
         const query = {}
-        if (type) {
+        if (type !== undefined) {
             query.type = type
         }
         if (userId !== undefined && userSvc.checkAdmin(req.auth.type)) {

@@ -7,7 +7,7 @@ const {
     visitorRecord,
     cameraRecord,
     notice,
-    config,
+    systemConfig,
     userBehavior,
     recommond,
 } = require('../models')
@@ -134,7 +134,7 @@ module.exports = {
         if (apiRes.code === -1) {
             return next(new Error(apiRes.data))
         }
-        await config.update({
+        await systemConfig.update({
             isUpdate: DataStatus.Actived.value,
         }, {
             where: { id: 1 },
