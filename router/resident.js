@@ -18,6 +18,7 @@ register('get', '/visitors', resident.getVisitors)
 register('put', '/visite', resident.approveVisite)
 register('post', '/visitor', resident.registerVisitor)
 register('post', '/open/door', resident.openDoor)
+register('post', '/face', resident.addNewFaceByPicture)
 
 /**
  * 故障

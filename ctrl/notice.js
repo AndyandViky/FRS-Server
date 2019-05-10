@@ -41,7 +41,7 @@ module.exports = {
         const count = await notice.count({
             where: { people_id: req.auth.selfId, status: ReadStatus.NotReaded.value },
         })
-        res.success(count)
+        res.success(`${count}`)
     },
 
     /**

@@ -139,6 +139,10 @@ module.exports = {
         ['adress_id', Type.Number, true],
     ],
 
+    addNewFaceByPicture: [
+        ['attId', Type.Number, true],
+    ],
+
     getNoticeList: [
         ['pageNo', Type.Number, true],
         ['pageSize', Type.Number, true],

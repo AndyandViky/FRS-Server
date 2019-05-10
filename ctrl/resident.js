@@ -339,4 +339,34 @@ module.exports = {
         }
         res.success()
     },
+
+    /**
+     * 通过上传的图片增加人脸模型
+     * @param {*} req
+     * @param {*} res
+     */
+    async addNewFaceByPicture(req, res, next) {
+        const { attId } = req.body
+        const { selfId } = req.auth
+        let isActived = DataStatus.Actived.value
+        const count = await faceData.count({
+            where: { people_id: selfId, is_active: DataStatus.Actived.value },
+        })
+        if (count > 0) isActived = DataStatus.NotActived.value
+        // 调用api接口, 增加模型
+        const apiRes = await faceSvc.addModel({
+            id: selfId,
+            imageId: attId,
+            isActived,
+        })
+        if (apiRes.code === -1) {
+            return next(new Error(apiRes.data))
+        }
+        await systemConfig.update({
+            isUpdate: DataStatus.Actived.value,
+        }, {
+            where: { id: 1 },
+        })
+        res.success()
+    },
 }
