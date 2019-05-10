@@ -26,7 +26,7 @@ module.exports = {
      * 用户登录
      */
     async login(req, res, next) {
-        const { username, password } = req.body
+        const { username, password, types } = req.body
         const pwd = common.encryptInfo(password)
         let user = {}
         const query = {
@@ -41,6 +41,9 @@ module.exports = {
             attributes: ['id', 'name', 'gender', 'age', 'email', 'phone', 'avatar', 'types'],
         })
         if (user) {
+            if (types !== undefined && user.types !== types) {
+                return next(new Error('您没有权限访问'))
+            }
             let isVerify = 1
             if (user.types === UserRank.Resident.value) {
                 const resident = await users.findOne({

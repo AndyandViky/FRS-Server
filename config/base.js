@@ -7,6 +7,7 @@ const config = {
     JWT_TOKEN_TIMEOUT: 864000, // 10 days
     NO_AUTH_REG: /\.log$|\.ico$|^\/socket.io/,
     NO_AUTH_PATHS: [
+        '/admin/login',
         '/login',
         '/register',
         '/test/jwt',

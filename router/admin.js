@@ -18,6 +18,11 @@ const router = express.Router()
 register('get', '/', admin.getIndexData)
 
 /**
+ * login
+ */
+register('post', '/login', user.login)
+
+/**
  * 管理员相关
  */
 // 通过业主申请
@@ -26,6 +31,7 @@ register('get', '/users', admin.getUsers)
 register('get', '/user', user.getUserInfo)
 register('put', '/user', user.changeUserInfo)
 register('delete', '/user', admin.deleteUser)
+register('put', '/password', user.updatePwd)
 register('get', '/face', user.getUserFaceModel)
 register('put', '/face/active', user.activeModel)
 register('get', '/visitors', resident.getVisitors)
