@@ -37,7 +37,7 @@ module.exports = {
     async getBugs(req, res) {
         const { pageNo, pageSize, userId, search } = req.query
         const query = {}
-        if (search) {
+        if (search !== undefined && search !== '{}') {
             const searchData = JSON.parse(search)
             if (searchData.searchName !== '') {
                 query.title = { $like: `%${searchData.searchName}%` }

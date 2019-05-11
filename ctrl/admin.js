@@ -115,7 +115,7 @@ module.exports = {
                 offset: (pageNo - 1) * pageSize,
                 limit: pageSize,
                 order: [
-                    ['created_at', 'desc'],
+                    ['id', 'desc'],
                 ],
                 attributes: attribute,
             })
@@ -126,7 +126,7 @@ module.exports = {
                 offset: (pageNo - 1) * pageSize,
                 limit: pageSize,
                 order: [
-                    ['created_at', 'desc'],
+                    ['id', 'desc'],
                 ],
                 attributes: attribute,
             })
@@ -137,7 +137,7 @@ module.exports = {
                 offset: (pageNo - 1) * pageSize,
                 limit: pageSize,
                 order: [
-                    ['created_at', 'desc'],
+                    ['id', 'desc'],
                 ],
                 attributes: attribute,
             })

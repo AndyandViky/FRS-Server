@@ -365,6 +365,9 @@ module.exports = {
         data.datas = await cameraRecord.findAll({
             include: [peoples],
             where: query,
+            order: [
+                ['id', 'desc'], // 根据id倒序
+            ],
             offset: (pageNo - 1) * pageSize,
             limit: pageSize,
         })

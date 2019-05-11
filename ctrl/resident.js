@@ -188,6 +188,9 @@ module.exports = {
         data.datas = await cameraRecord.findAll({
             where: query,
             attributes: ['count', 'type', 'created_at'],
+            order: [
+                ['id', 'desc'], // 根据id倒序
+            ],
             offset: (pageNo - 1) * pageSize,
             limit: pageSize,
         })
@@ -356,7 +359,7 @@ module.exports = {
         // 调用api接口, 增加模型
         const apiRes = await faceSvc.addModel({
             id: selfId,
-            imageId: attId,
+            imageId: parseInt(attId),
             isActived,
         })
         if (apiRes.code === -1) {

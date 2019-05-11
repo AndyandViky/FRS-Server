@@ -39,7 +39,7 @@ schedule.scheduleJob('*/30 * * * * *', async () => {
                 limit: 10,
                 attributes: ['id', 'semblance'],
                 order: [
-                    ['created_at', 'DESC'],
+                    ['id', 'DESC'],
                 ],
             })
             if (records.length > 0) {

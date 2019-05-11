@@ -3,7 +3,7 @@ module.exports = {
     DEBUG: true,
     MAILER_ON: false,
 
-    BE_DOMAIN: 'http://192.168.118.149:5000',
+    BE_DOMAIN: 'http://192.168.118.150:5000',
     FRONT_DOMAIN: 'http://localhost:5000',
 
     DATABASE: 'face',
