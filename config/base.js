@@ -16,6 +16,7 @@ const config = {
         '/question',
         '/answers',
         '/send/email',
+        '/',
     ],
 
     // logs location
