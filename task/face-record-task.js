@@ -10,7 +10,7 @@ const { cameraRecord, notice, peoples, enums } = require('../models')
 
 const { DataStatus, UserRank } = enums
 
-schedule.scheduleJob('* * */2 * * *', async () => {
+schedule.scheduleJob('* * */10 * * *', async () => {
     const interval = 1000 * 60 * 10 // 内部循环为十分钟一次
     const limit = new Date(Date.now() - (3600 * 1000 * 2)) // 2小时之内的数据
     const now = new Date() // 开始外部定时器的时间

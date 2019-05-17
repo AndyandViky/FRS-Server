@@ -87,7 +87,7 @@ async function getArticlesByCache(query, datas, selfId) {
                 where: { people_id: selfId },
                 attributes: ['recommonds'],
             })
-            if (recommondData) {
+            if (recommondData && recommondData.recommonds && recommondData.recommonds !== '[]') {
                 const recommondIds = JSON.parse(recommondData.recommonds)
                 // {
                 //     type: 1,
@@ -100,7 +100,10 @@ async function getArticlesByCache(query, datas, selfId) {
                 })
             } else {
                 // 没有推荐，拿最新的10个
-                tempArticles = articles.slice(-10)
+                tempArticles = articles.filter((item) => {
+                    return item.category === ArticleCategory.Article.value
+                })
+                tempArticles = tempArticles.slice(-10)
                 console.log('暂无推荐')
             }
         } else if (category === 'other') {
