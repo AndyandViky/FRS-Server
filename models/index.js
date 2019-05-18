@@ -41,6 +41,9 @@ answer.belongsTo(question, { foreignKey: 'question_id' })
 answer.belongsTo(peoples, { foreignKey: 'people_id' })
 peoples.hasMany(question, { foreignKey: 'id' })
 
+peoples.hasMany(faceData, { foreignKey: 'id' })
+faceData.belongsTo(peoples, { foreignKey: 'people_id' })
+
 peoples.belongsTo(adress, { foreignKey: 'adress_id' })
 adress.hasMany(peoples, { foreignKey: 'id' })
 
