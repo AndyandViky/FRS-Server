@@ -1,6 +1,6 @@
 const gm = require('gm')
 const multiparty = require('multiparty')
-const sequelize = require('sequelize')
+const { sequelize } = require('../util')
 
 const {
     peoples,
@@ -66,25 +66,33 @@ module.exports = {
      * 用户注册
      */
     async register(req, res, next) {
-        const { password, confirmPwd, email, vCode } = req.body
+        const { password, confirmPassword, email, vCode } = req.body
         cache.get(email, (async (err, code) => {
             if (code !== vCode) return next(new Error('验证码不正确'))
-            if (password !== confirmPwd) return next(new Error('两次密码输入不一致'))
+            if (password !== confirmPassword) return next(new Error('两次密码输入不一致'))
             req.body.password = common.encryptInfo(password)
-            await sequelize.transaction((t) => {
+            if (!req.body.adress_id) req.body.adress_id = 1
+            req.body.is_active = DataStatus.Actived.value
+            sequelize.transaction((t) => {
                 // 在这里链接您的所有查询。 确保你返回他们。
                 return peoples.create(req.body, { transaction: t }).then((user) => {
-                    if (user.type === UserRank.Visitor.value) {
+                    if (user.types === UserRank.Visitor.value) {
                         return visitor.create({
                             people_id: user.id,
                         }, { transaction: t })
-                    } if (user.type === UserRank.Resident.value) {
+                    } if (user.types === UserRank.Resident.value) {
                         return users.create({
                             people_id: user.id,
                             self_password: common.encryptInfo('123456'),
                         }, { transaction: t })
-                    } throw new Error()
+                    }
                 })
+            }).then((result) => {
+                // Transaction 会自动提交
+                // result 是事务回调中使用promise链中执行结果
+            }).catch((err) => {
+                // Transaction 会自动回滚
+                // err 是事务回调中使用promise链中的异常结果
             })
             res.success()
         }))
@@ -93,11 +101,17 @@ module.exports = {
     /**
      * 注册发送邮件验证码
      */
-    async sendRegisterEmail(req, res) {
+    async sendRegisterEmail(req, res, next) {
         const { email } = req.body
+        const user = await peoples.count({
+            where: { email },
+        })
+        if (user > 0) {
+            return next(new Error('该邮箱已被注册'))
+        }
         const random = common.randomString(6)
         emailSvc.sendEmail(email, '注册通知', `邮箱验证码为: ${random}`)
-        cache.set(email, random, 180)
+        cache.set(email, random, 600)
         res.success()
     },
 

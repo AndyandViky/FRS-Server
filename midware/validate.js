@@ -24,15 +24,15 @@ module.exports = {
     ],
 
     register: [
-        ['type', Type.Number, true],
+        ['types', Type.Number, true],
         ['email', Type.String, true],
         ['name', Type.String, true],
-        ['phone', Type.Phone, true],
+        ['phone', Type.Phone, false],
         ['password', Type.String, true],
-        ['confirmPwd', Type.String, true],
-        ['gender', Type.Number, true],
-        ['house_number', Type.Number, true],
-        ['adress_id', Type.Number, true],
+        ['confirmPassword', Type.String, true],
+        ['gender', Type.Number, false],
+        ['house_number', Type.Number, false],
+        ['adress_id', Type.Number, false],
     ],
 
     sendRegisterEmail: [
@@ -62,6 +62,7 @@ module.exports = {
     ],
 
     approveVisite: [
+        ['id', Type.Number, true],
         ['visitorId', Type.Number, true],
     ],
 

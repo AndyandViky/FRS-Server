@@ -13,6 +13,7 @@ const router = express.Router()
  * 用户相关
  */
 register('post', '/login', user.login)
+register('post', '/register', user.register)
 register('post', '/user', user.register)
 register('get', '/user', user.getUserInfo)
 register('put', '/user', user.changeUserInfo)

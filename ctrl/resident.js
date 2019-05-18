@@ -22,13 +22,13 @@ module.exports = {
      * 业主通过访客访问
      */
     async approveVisite(req, res) {
-        const { visitorId } = req.body
+        const { id, visitorId } = req.body
         await visitorRecord.update({
             pass_time: Date.now(),
             status: VisitorStatus.Pass.value,
         }, {
             where: {
-                visitor_id: visitorId,
+                id,
             },
         })
         // 启用访客的人像图
@@ -41,10 +41,10 @@ module.exports = {
             },
         })
         // 发送通知，此处由于输入的为手机号，所以会发生错误
-        // const visitor = await peoples.findById(visitorId, {
-        //     attributes: ['email'],
-        // })
-        // emailSvc.sendEmail(visitor.email, '访问通过通知', '尊敬的用户你好，您申请的访问已被通过！')
+        const visitor = await peoples.findById(visitorId, {
+            attributes: ['email'],
+        })
+        emailSvc.sendEmail(visitor.email, '访问通过通知', '尊敬的用户你好，您申请的访问已被通过！')
         res.success()
     },
 
@@ -220,7 +220,9 @@ module.exports = {
         const { selfId, type } = req.auth
         const query = { belong: selfId }
         if (status !== undefined) {
-            query.status = status
+            if (status === 3) {
+                query.status = { $in: [VisitorStatus.Invalid.value, VisitorStatus.Pass.value] }
+            } else query.status = status
         }
         if (userId && userSvc.checkAdmin(type)) query.belong = userId
         const data = {
