@@ -340,6 +340,12 @@ module.exports = {
                 where: { people_id: id, type: FaceModel.First.value },
             })
         }
+        // 更新配置
+        await systemConfig.update({
+            isUpdate: DataStatus.Actived.value,
+        }, {
+            where: { id: 1 },
+        })
         res.success()
     },
 
