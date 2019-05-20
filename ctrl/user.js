@@ -175,6 +175,9 @@ module.exports = {
      * 更新用户头像
      */
     async uploadAvatar(req, res) {
+        const { peopleId } = req.query
+        let userId = req.auth.selfId
+        if (peopleId) userId = peopleId
         const form = new multiparty.Form()
         form.uploadDir = UploadPath.Attachment.value
         form.parse(req, async (err, fields, files) => {
@@ -182,9 +185,9 @@ module.exports = {
             await peoples.update({
                 avatar: paths,
             }, {
-                where: { id: req.auth.selfId },
+                where: { id: userId },
             })
-            res.success()
+            res.success(paths)
         })
     },
 

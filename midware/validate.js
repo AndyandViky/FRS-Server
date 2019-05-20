@@ -159,6 +159,12 @@ module.exports = {
         ['noticeId', Type.Number, true],
     ],
 
+    createNotice: [
+        ['people_id', Type.Number, true],
+        ['title', Type.String, true],
+        ['content', Type.String, true],
+    ],
+
     // 问答
     getQuestions: [
         ['pageNo', Type.Number, true],

@@ -36,6 +36,7 @@ register('get', '/face', user.getUserFaceModel)
 register('put', '/face/active', user.activeModel)
 register('get', '/visitors', resident.getVisitors)
 register('put', '/visite/time', resident.addVisiteTime)
+register('delete', '/face', user.deleteFaceModel)
 
 /**
  * 摄像头
@@ -83,6 +84,8 @@ register('get', '/notices', notice.getNoticeList)
 register('put', '/notice', notice.updateStatus)
 // 删除通知
 register('delete', '/notice', notice.removeNotice)
+// 创建通知
+register('post', '/notice', notice.createNotice)
 
 /**
  * register ctrl and validate(if any) midware funcs to routes

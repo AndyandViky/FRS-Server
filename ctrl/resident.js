@@ -203,12 +203,22 @@ module.exports = {
      */
     async addVisiteTime(req, res) {
         const { recordId, deadline } = req.body
-        await visitorRecord.update({
-            deadline,
-            pass_time: Date.now().toString(),
-        }, {
-            where: { id: recordId },
-        })
+        const record = await visitorRecord.findById(recordId)
+        if (record.status === VisitorStatus.Invalid.value) {
+            // 如果为已失效
+            await faceData.update({
+                is_active: DataStatus.Actived.value,
+            }, {
+                where: {
+                    people_id: record.visitor_id,
+                    type: FaceModel.First.value,
+                },
+            })
+            record.pass_time = Date.now().toString()
+            record.deadline = deadline
+            record.status = VisitorStatus.Pass.value
+        } else record.deadline = parseInt(record.deadline) + parseInt(deadline)
+        await record.save()
         res.success()
     },
 

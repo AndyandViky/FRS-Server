@@ -65,4 +65,15 @@ module.exports = {
         })
         res.success()
     },
+
+    /**
+     * 创建通知
+     * @param {*} req 
+     * @param {*} res 
+     */
+    async createNotice(req, res) {
+        req.body.send_id = req.auth.selfId
+        await notice.create(req.body)
+        res.success()
+    },
 }
