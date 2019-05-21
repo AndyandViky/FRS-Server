@@ -47,6 +47,8 @@ faceData.belongsTo(peoples, { foreignKey: 'people_id' })
 peoples.belongsTo(adress, { foreignKey: 'adress_id' })
 adress.hasMany(peoples, { foreignKey: 'id' })
 
+bug.belongsTo(peoples, { foreignKey: 'people_id' })
+
 module.exports = {
     admin,
     adress,

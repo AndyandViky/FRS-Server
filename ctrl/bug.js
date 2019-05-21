@@ -54,6 +54,7 @@ module.exports = {
             total: '',
         }
         data.datas = await bug.findAll({
+            include: [peoples],
             where: query,
             offset: (pageNo - 1) * pageSize,
             limit: pageSize,

@@ -51,7 +51,6 @@ module.exports = {
             offset: (pageNo - 1) * pageSize,
             limit: pageSize,
         })
-
         // 获取所有的adress id 并作一个分类
         const adressIds = []
         for (const item of data.datas) {
@@ -120,6 +119,9 @@ module.exports = {
      * 删除问题
      */
     async deleteQuestion(req, res) {
+        await answer.destroy({
+            where: { question_id: req.body.questionId },
+        })
         await question.destroy({
             where: { id: req.body.questionId },
         })
