@@ -25,18 +25,24 @@ module.exports = {
 
     register: [
         ['types', Type.Number, true],
-        ['email', Type.String, true],
+        ['email', Type.Email, true],
         ['name', Type.String, true],
         ['phone', Type.Phone, false],
         ['password', Type.String, true],
         ['confirmPassword', Type.String, true],
         ['gender', Type.Number, false],
-        ['house_number', Type.Number, false],
+        ['house_number', Type.String, false],
         ['adress_id', Type.Number, false],
     ],
 
     sendRegisterEmail: [
         ['email', Type.Email, true],
+    ],
+
+    reChangePassword: [
+        ['email', Type.Email, true],
+        ['password', Type.String, true],
+        ['vCode', Type.String, true],
     ],
 
     changeUserInfo: [
@@ -52,6 +58,12 @@ module.exports = {
     ],
 
     updatePwd: [
+        ['oldPwd', Type.String, true],
+        ['newPwd', Type.String, true],
+        ['confirmPwd', Type.String, true],
+    ],
+
+    updateSelfPwd: [
         ['oldPwd', Type.String, true],
         ['newPwd', Type.String, true],
         ['confirmPwd', Type.String, true],

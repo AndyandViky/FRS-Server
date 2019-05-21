@@ -17,6 +17,7 @@ const config = {
         '/answers',
         '/send/email',
         '/',
+        '/rechange/password',
     ],
 
     // logs location

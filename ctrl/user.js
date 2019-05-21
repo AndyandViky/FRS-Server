@@ -67,6 +67,12 @@ module.exports = {
      */
     async register(req, res, next) {
         const { password, confirmPassword, email, vCode } = req.body
+        const people = await peoples.count({
+            where: { email },
+        })
+        if (people > 0) {
+            return next(new Error('该邮箱已被注册'))
+        }
         cache.get(email, (async (err, code) => {
             if (code !== vCode) return next(new Error('验证码不正确'))
             if (password !== confirmPassword) return next(new Error('两次密码输入不一致'))
@@ -83,36 +89,54 @@ module.exports = {
                     } if (user.types === UserRank.Resident.value) {
                         return users.create({
                             people_id: user.id,
-                            self_password: common.encryptInfo('123456'),
+                            self_password: '123456',
                         }, { transaction: t })
                     }
                 })
             }).then((result) => {
+                res.success()
                 // Transaction 会自动提交
                 // result 是事务回调中使用promise链中执行结果
             }).catch((err) => {
+                return next(new Error('注册失败'))
                 // Transaction 会自动回滚
                 // err 是事务回调中使用promise链中的异常结果
             })
-            res.success()
         }))
     },
 
     /**
-     * 注册发送邮件验证码
+     * 发送邮件验证码
      */
-    async sendRegisterEmail(req, res, next) {
+    async sendEmail(req, res) {
         const { email } = req.body
-        const user = await peoples.count({
-            where: { email },
-        })
-        if (user > 0) {
-            return next(new Error('该邮箱已被注册'))
-        }
         const random = common.randomString(6)
-        emailSvc.sendEmail(email, '注册通知', `邮箱验证码为: ${random}`)
+        emailSvc.sendEmail(email, '通知', `邮箱验证码为: ${random}`)
         cache.set(email, random, 600)
         res.success()
+    },
+
+    /**
+     * 忘记密码
+     */
+    async reChangePassword(req, res, next) {
+        const { password, email, vCode } = req.body
+        const people = await peoples.findOne({
+            where: { email },
+            attributes: ['id'],
+        })
+        if (!people) {
+            return next(new Error('该邮箱未注册'))
+        }
+        cache.get(email, (async (err, code) => {
+            if (code !== vCode) return next(new Error('验证码不正确'))
+            await peoples.update({
+                password: common.encryptInfo(password),
+            }, {
+                where: { id: people.id },
+            })
+            res.success()
+        }))
     },
 
     /**

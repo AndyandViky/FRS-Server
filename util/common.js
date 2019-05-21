@@ -38,7 +38,7 @@ exports.randomString = function (len, type = 'string') {
     if (type !== 'string') {
         $chars = '1234567890'
     } else {
-        $chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678' /** **默认去掉了容易混淆的字符oOLl,9gq,Vv,Uu,I1*** */
+        $chars = 'abcdefhijkmnprstwxyz2345678' /** **默认去掉了容易混淆的字符oOLl,9gq,Vv,Uu,I1*** */
     }
     const maxPos = $chars.length
     let pwd = ''

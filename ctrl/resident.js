@@ -384,4 +384,24 @@ module.exports = {
         })
         res.success()
     },
+
+    /**
+     * 修改开锁密码
+     */
+    async updateSelfPwd(req, res, next) {
+        const { oldPwd, newPwd, confirmPwd } = req.body
+        if (newPwd !== confirmPwd) return next(new Error('两次输入密码不一致'))
+        const resident = await users.findOne({
+            where: {
+                people_id: req.auth.selfId,
+            },
+            attributes: ['id', 'self_password'],
+        })
+        console.log(`${resident.self_password}--${oldPwd}`)
+        if (resident.self_password !== oldPwd) {
+            return next(new Error('输入旧密码错误'))
+        }
+        await resident.update({ self_password: newPwd })
+        res.success()
+    },
 }

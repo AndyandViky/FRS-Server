@@ -19,6 +19,7 @@ register('put', '/visite', resident.approveVisite)
 register('post', '/visitor', resident.registerVisitor)
 register('post', '/open/door', resident.openDoor)
 register('post', '/face', resident.addNewFaceByPicture)
+register('put', '/self/password', resident.updateSelfPwd)
 
 /**
  * 故障
