@@ -1,6 +1,7 @@
 const gm = require('gm')
 const multiparty = require('multiparty')
 const { sequelize } = require('../util')
+const config = require('../config')
 
 const {
     peoples,
@@ -206,6 +207,7 @@ module.exports = {
         form.uploadDir = UploadPath.Attachment.value
         form.parse(req, async (err, fields, files) => {
             const paths = files.file[0].path
+            config.DATACATCHCOUNT += files.file[0].size
             await peoples.update({
                 avatar: paths,
             }, {
@@ -265,6 +267,7 @@ module.exports = {
         form.parse(req, (err, fields, files) => {
             if (!files) return next(new Error('请上传图片'))
             const paths = files.file[0].path
+            config.DATACATCHCOUNT += files.file[0].size
             const imageMagick = gm.subClass({ imageMagick: true })
             imageMagick(paths).size(async (err1, value) => {
                 if (err1) return next(new Error('获取失败, 请重新上传'))
@@ -431,6 +434,7 @@ module.exports = {
         form.uploadDir = UploadPath.Attachment.value
         form.parse(req, async (err, fields, files) => {
             const paths = files.file[0].path
+            config.DATACATCHCOUNT += files.file[0].size
             const imageMagick = gm.subClass({ imageMagick: true })
             imageMagick(paths).size(async (err, value) => {
                 if (err) return next(new Error('获取失败, 请重新上传'))

@@ -1,6 +1,7 @@
 const multiparty = require('multiparty')
 const gm = require('gm')
 const { attachment, enums } = require('../models')
+const config = require('../config')
 
 const { UploadPath } = enums
 
@@ -14,6 +15,7 @@ module.exports = {
         form.uploadDir = UploadPath.Attachment.value
         form.parse(req, async (err, fields, files) => {
             const paths = files.file[0].path
+            config.DATACATCHCOUNT += files.file[0].size
             const imageMagick = gm.subClass({ imageMagick: true })
             imageMagick(paths).size(async (err, value) => {
                 console.log(err)

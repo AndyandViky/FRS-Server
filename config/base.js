@@ -36,7 +36,7 @@ const config = {
 
     // 全局静态数据
     SERVERCOUNT: 0,
-    DATACATCHCOUNT: 1024123,
+    DATACATCHCOUNT: 0,
     BROWSERCOUNT: 1024123,
 
     EMAIL: {
