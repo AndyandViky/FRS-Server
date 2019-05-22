@@ -10,7 +10,7 @@ const { faceData, notice, enums } = require('../models')
 const { DataStatus } = enums
 
 // async function test() {
-schedule.scheduleJob('* * */2 * * *', async () => {
+schedule.scheduleJob('0 0 0 * * *', async () => {
     const faces = await faceData.findAll({
         where: { is_active: DataStatus.Actived.value },
         order: [
