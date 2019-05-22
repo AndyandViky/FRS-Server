@@ -1,8 +1,8 @@
 /**
  * 门禁记录 JOB
  * 定时扫描门禁记录
- * 执行频率: 每10分钟
- * 每次处理: 这10分钟内的数据
+ * 执行频率: 每2小时
+ * 每次处理: 这2小时的数据
  */
 
 const schedule = require('node-schedule')
@@ -10,7 +10,7 @@ const { cameraRecord, notice, peoples, enums } = require('../models')
 
 const { DataStatus, UserRank } = enums
 
-schedule.scheduleJob('* * */10 * * *', async () => {
+schedule.scheduleJob('* * */2 * * *', async () => {
     const interval = 1000 * 60 * 10 // 内部循环为十分钟一次
     const limit = new Date(Date.now() - (3600 * 1000 * 2)) // 2小时之内的数据
     const now = new Date() // 开始外部定时器的时间

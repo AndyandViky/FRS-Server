@@ -1,7 +1,7 @@
 /**
  * 人脸模型 JOB
  * 定时更新人脸数据的第二张模型
- * 执行频率: 每1个月
+ * 执行频率: 每天晚上12点
  * 每次处理: 全部已激活记录
  */
 const schedule = require('node-schedule')
@@ -11,10 +11,9 @@ const { faceSvc } = require('../service')
 const { DataStatus } = enums
 
 // async function test() {
-schedule.scheduleJob('*/30 * * * * *', async () => {
+schedule.scheduleJob('0 0 0 * * *', async () => {
     // 从最近的10次门禁记录中选取数值最大的更新
-    // const interval = 1000 * 60 * 20 // 内部循环为20分钟一次
-    const interval = 5000 // 内部循环为20分钟一次
+    const interval = 1000 * 60 * 20 // 内部循环为20分钟一次
     const datas = await peoples.findAll({
         where: { is_active: DataStatus.Actived.value },
         attributes: ['id', 'adress_id'],

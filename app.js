@@ -27,7 +27,7 @@ app.use('/resident', userAuth, resident)
 app.use('/admin', userAuth, admin)
 app.use('/visitor', userAuth, visitor)
 
-// require('./task/face-time-model-task')
+require('./task')
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

@@ -93,7 +93,6 @@ module.exports = {
             // 已注册
             userId = people.id
             req.body.visitor_id = people.id
-            await visitorRecord.create(req.body)
         } else {
             // 未注册
             req.body.types = UserRank.Visitor.value
@@ -103,15 +102,6 @@ module.exports = {
             const rePeople = await peoples.create(req.body)
             req.body.visitor_id = rePeople.id
             userId = rePeople.id
-            await Promise.all([
-                visitorRecord.create(req.body),
-                notice.create({
-                    people_id: req.auth.selfId,
-                    title: '访客注册通知',
-                    content: `您当前申请的访客尚未注册, 我们已为您注册, 初始帐号为: ${phone} 初始密码为: 123456`,
-                    send_id: 0,
-                }),
-            ])
         }
         let isActived = DataStatus.Actived.value
         const faceCount = await faceData.count({
@@ -133,6 +123,19 @@ module.exports = {
         })
         if (apiRes.code === -1) {
             return next(new Error(apiRes.data))
+        }
+        // 模型增加成功后再增加记录
+        if (people) await visitorRecord.create(req.body)
+        else {
+            await Promise.all([
+                visitorRecord.create(req.body),
+                notice.create({
+                    people_id: req.auth.selfId,
+                    title: '访客注册通知',
+                    content: `您当前申请的访客尚未注册, 我们已为您注册, 初始帐号为: ${phone} 初始密码为: 123456`,
+                    send_id: 0,
+                }),
+            ])
         }
         await systemConfig.update({
             isUpdate: DataStatus.Actived.value,

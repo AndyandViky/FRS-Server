@@ -10,7 +10,7 @@ const { visitorRecord, enums, faceData } = require('../models')
 const { DataStatus, VisitorStatus } = enums
 
 // async function test() {
-schedule.scheduleJob('* * */10 * * *', async () => {
+schedule.scheduleJob('* */10 * * * *', async () => {
     await init()
 })
 async function init() {
