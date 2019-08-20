@@ -1,2 +1,0 @@
-# Face Recongnization System Server
----
